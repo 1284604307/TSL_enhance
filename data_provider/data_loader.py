@@ -808,17 +808,8 @@ class Dataset_Conv_ETTh1(Dataset):
         df_raw = readFileFromPath(os.path.join(self.root_path,
                                           self.data_path),date_column=self.args.date_column,ignore_columns=self.args.ignore_columns)
 
-        '''
-        df_raw.columns: ['date', ...(other features), target feature]
-        '''
-        df_raw.rename({self.args.date_column:"date"}, axis='columns', inplace=True)
+
         cols = list(df_raw.columns)
-        ignore_columns = self.args.ignore_columns.split(",")
-        for col in ignore_columns:
-            if col in cols:
-                cols.remove(col)
-            else:
-                print(f"数据预处理--x-->{col}列不存在(可能的原因：1.日期列被替换为date，2.重复删除或列名错误)")
         # cols.remove(self.target)
         # cols.remove('date')
         df_date = df_raw[['date']]
