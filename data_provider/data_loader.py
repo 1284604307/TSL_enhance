@@ -55,6 +55,7 @@ def getScaler(args):
     if(args.scale):
         return StandardScaler()
     else:
+        print("使用NoneScaler类，不会对数据进行归一化操作")
         return NoneScaler()
 
 class Dataset_ETT_hour(Dataset):
