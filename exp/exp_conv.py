@@ -143,7 +143,7 @@ class Exp_Conv(Exp_Basic):
 
         preds = []
         trues = []
-        folder_path = './test_results/' + setting + '/'
+        folder_path = drawUtil.getBaseOutputPath()+'test_results/' + setting + '/'
         if not os.path.exists(folder_path):
             os.makedirs(folder_path)
 
@@ -179,7 +179,7 @@ class Exp_Conv(Exp_Basic):
         )
 
         # result save
-        folder_path = './results/' + setting + '/'
+        folder_path = drawUtil.getBaseOutputPath()+'results/' + setting + '/'
         if not os.path.exists(folder_path):
             os.makedirs(folder_path)
 
@@ -191,16 +191,11 @@ class Exp_Conv(Exp_Basic):
         )
         mae, mse, rmse, mape, mspe = metric(preds, trues)
         print('mse:{}, mae:{}'.format(mse, mae))
-        f = open("result_imputation.txt", 'a')
-        f.write(setting + "  \n")
-        f.write('mse:{}, mae:{}'.format(mse, mae))
-        f.write('\n')
-        f.write('\n')
-        f.close()
-
-        np.save(folder_path + 'metrics.npy', np.array([mae, mse, rmse, mape, mspe]))
-        np.save(folder_path + 'pred.npy', preds)
-        np.save(folder_path + 'true.npy', trues)
-        np.savetxt(folder_path + 'pred.csv', preds, delimiter=',')
-        np.savetxt(folder_path + 'trues.csv', trues, delimiter=',')
+        drawUtil.metricAndSave(preds,trues,folder_path)
+        # f = open("result_imputation.txt", 'a')
+        # f.write(setting + "  \n")
+        # f.write('mse:{}, mae:{}'.format(mse, mae))
+        # f.write('\n')
+        # f.write('\n')
+        # f.close()
         return

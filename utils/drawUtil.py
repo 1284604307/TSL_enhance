@@ -8,6 +8,23 @@ from utils.metrics import metric
 import seaborn as sns
 
 
+def isKaggle():
+    import os
+    # 检查是否在 Kaggle 环境中
+    if 'KAGGLE_KERNEL_RUN_TYPE' in os.environ:
+        return True
+        # if os.environ['KAGGLE_KERNEL_RUN_TYPE'] == 'Interactive':
+        #     print("在 Kaggle Notebook 中运行")
+        # elif os.environ['KAGGLE_KERNEL_RUN_TYPE'] == 'Batch':
+        #     print("在 Kaggle Batch Environment 中运行")
+    else:
+        return False
+
+def getBaseOutputPath():
+    if isKaggle():
+        return "/kaggle/working/"
+    else:
+        return "../"
 # def drawResultCompare(result, real, tag):
 #     drawResultCompare(result,real,tag,None)
 def drawResultCompare(result, real,tag,savePath):
@@ -27,6 +44,7 @@ def drawResultCompare(result, real,tag,savePath):
     plt.show()
     if savePath!=None:
         plt.savefig(f'{savePath}.png')
+        print(f"结果对比图保存到{savePath}")
 
 def saveResultCompare(predicted_values, real,tag):
     # 将两个数组转换为DataFrame，分别作为两列
@@ -35,7 +53,7 @@ def saveResultCompare(predicted_values, real,tag):
         '预测值': predicted_values
     })
     # 将DataFrame保存为csv文件
-    data.to_csv(f'../model_result/{tag}.csv', index=False, encoding='utf-8')
+    data.to_csv(f'{getBaseOutputPath()}model_result/{tag}.csv', index=False, encoding='utf-8')
     print("CSV 文件已保存")
 
 
@@ -70,9 +88,10 @@ def metricAndSave(preds, trues,folder_path):
     np.savetxt(folder_path + 'metrics.txt', np.array([f"mae:{mae}", f"mse:{mse}",f"rmse:{rmse}", f"mape:{mape}", f"mspe:{mspe}"]), fmt='%s')
     np.savetxt(folder_path + 'pred.csv', preds, delimiter=',')
     np.savetxt(folder_path + 'trues.csv', trues, delimiter=',')
+    print()
     return mae, mse, rmse, mape, mspe
 
-def drawBBox(rawData,figPath="figure/箱型图.png"):
+def drawBBox(rawData,figPath="箱型图.png"):
     # 绘制箱型图
     rc = {'font.sans-serif': 'SimHei',
           'axes.unicode_minus': False}
@@ -88,5 +107,5 @@ def drawBBox(rawData,figPath="figure/箱型图.png"):
         plt.title(column)
 
     plt.tight_layout()
-    plt.savefig(figPath, dpi=600, bbox_inches='tight')
+    plt.savefig(getBaseOutputPath()+"figure/"+figPath, dpi=600, bbox_inches='tight')
     plt.show()
