@@ -16,6 +16,29 @@ from utils.augmentation import run_augmentation_single
 warnings.filterwarnings('ignore')
 
 
+def readFileFromPath(file_path,date_column=None,ignore_columns=None):
+    if(file_path.endswith('.csv')):
+        df_raw = pd.read_csv(file_path)
+    elif(file_path.endswith('.xlsx')):
+        df_raw = pd.read_excel(file_path)
+    else:
+        return Exception("不支持的文件类型")
+
+    '''
+    df_raw.columns: ['date', ...(other features), target feature]
+    '''
+    if date_column!=None:
+        df_raw.rename({date_column:"date"}, axis='columns', inplace=True)
+    if ignore_columns!=None:
+        cols = list(df_raw.columns)
+        ignore_columns = ignore_columns.split(",")
+        for col in ignore_columns:
+            if col in cols:
+                cols.remove(col)
+            else:
+                print(f"数据预处理--x-->{col}列不存在(可能的原因：1.日期列被替换为date，2.重复删除或列名错误)")
+    return df_raw
+
 class Dataset_ETT_hour(Dataset):
     def __init__(self, args, root_path, flag='train', size=None,
                  features='S', data_path='ETTh1.csv',
@@ -48,8 +71,8 @@ class Dataset_ETT_hour(Dataset):
 
     def __read_data__(self):
         self.scaler = StandardScaler()
-        df_raw = pd.read_csv(os.path.join(self.root_path,
-                                          self.data_path))
+        df_raw = readFileFromPath(os.path.join(self.root_path,
+                                          self.data_path),date_column=self.args.date_column,ignore_columns=self.args.ignore_columns)
 
         border1s = [0, 12 * 30 * 24 - self.seq_len, 12 * 30 * 24 + 4 * 30 * 24 - self.seq_len]
         border2s = [12 * 30 * 24, 12 * 30 * 24 + 4 * 30 * 24, 12 * 30 * 24 + 8 * 30 * 24]
@@ -141,8 +164,8 @@ class Dataset_ETT_minute(Dataset):
 
     def __read_data__(self):
         self.scaler = StandardScaler()
-        df_raw = pd.read_csv(os.path.join(self.root_path,
-                                          self.data_path))
+        df_raw = readFileFromPath(os.path.join(self.root_path,
+                                          self.data_path),date_column=self.args.date_column,ignore_columns=self.args.ignore_columns)
 
         border1s = [0, 12 * 30 * 24 * 4 - self.seq_len, 12 * 30 * 24 * 4 + 4 * 30 * 24 * 4 - self.seq_len]
         border2s = [12 * 30 * 24 * 4, 12 * 30 * 24 * 4 + 4 * 30 * 24 * 4, 12 * 30 * 24 * 4 + 8 * 30 * 24 * 4]
@@ -236,8 +259,8 @@ class Dataset_Custom(Dataset):
 
     def __read_data__(self):
         self.scaler = StandardScaler()
-        df_raw = pd.read_csv(os.path.join(self.root_path,
-                                          self.data_path))
+        df_raw = readFileFromPath(os.path.join(self.root_path,
+                                          self.data_path),date_column=self.args.date_column,ignore_columns=self.args.ignore_columns)
 
         '''
         df_raw.columns: ['date', ...(other features), target feature]
@@ -392,19 +415,19 @@ class PSMSegLoader(Dataset):
         self.step = step
         self.win_size = win_size
         self.scaler = StandardScaler()
-        data = pd.read_csv(os.path.join(root_path, 'train.csv'))
+        data = readFileFromPath(os.path.join(root_path, 'train.csv'),date_column=self.args.date_column,ignore_columns=self.args.ignore_columns)
         data = data.values[:, 1:]
         data = np.nan_to_num(data)
         self.scaler.fit(data)
         data = self.scaler.transform(data)
-        test_data = pd.read_csv(os.path.join(root_path, 'test.csv'))
+        test_data = readFileFromPath(os.path.join(root_path, 'test.csv'),date_column=self.args.date_column,ignore_columns=self.args.ignore_columns)
         test_data = test_data.values[:, 1:]
         test_data = np.nan_to_num(test_data)
         self.test = self.scaler.transform(test_data)
         self.train = data
         data_len = len(self.train)
         self.val = self.train[(int)(data_len * 0.8):]
-        self.test_labels = pd.read_csv(os.path.join(root_path, 'test_label.csv')).values[:, 1:]
+        self.test_labels = readFileFromPath(os.path.join(root_path, 'test_label.csv'),date_column=self.args.date_column,ignore_columns=self.args.ignore_columns).values[:, 1:]
         print("test:", self.test.shape)
         print("train:", self.train.shape)
 
@@ -568,8 +591,8 @@ class SWATSegLoader(Dataset):
         self.win_size = win_size
         self.scaler = StandardScaler()
 
-        train_data = pd.read_csv(os.path.join(root_path, 'swat_train2.csv'))
-        test_data = pd.read_csv(os.path.join(root_path, 'swat2.csv'))
+        train_data = readFileFromPath(os.path.join(root_path, 'swat_train2.csv'),date_column=self.args.date_column,ignore_columns=self.args.ignore_columns)
+        test_data = readFileFromPath(os.path.join(root_path, 'swat2.csv'),date_column=self.args.date_column,ignore_columns=self.args.ignore_columns)
         labels = test_data.values[:, -1:]
         train_data = train_data.values[:, :-1]
         test_data = test_data.values[:, :-1]
@@ -782,8 +805,8 @@ class Dataset_Conv_ETTh1(Dataset):
 
     def __read_data__(self):
         self.scaler = StandardScaler()
-        df_raw = pd.read_csv(os.path.join(self.root_path,
-                                          self.data_path))
+        df_raw = readFileFromPath(os.path.join(self.root_path,
+                                          self.data_path),date_column=self.args.date_column,ignore_columns=self.args.ignore_columns)
 
         '''
         df_raw.columns: ['date', ...(other features), target feature]
@@ -904,20 +927,10 @@ class Dataset_Conv_OTT(Dataset):
 
     def __read_data__(self):
         self.scaler = StandardScaler()
-        df_raw = pd.read_csv(os.path.join(self.root_path,
-                                          self.data_path))
+        df_raw = readFileFromPath(os.path.join(self.root_path,
+                                          self.data_path),date_column=self.args.date_column,ignore_columns=self.args.ignore_columns)
 
-        '''
-        df_raw.columns: ['date', ...(other features), target feature]
-        '''
-        df_raw.rename({self.args.date_column:"date"}, axis='columns', inplace=True)
         cols = list(df_raw.columns)
-        ignore_columns = self.args.ignore_columns.split(",")
-        for col in ignore_columns:
-            if col in cols:
-                cols.remove(col)
-            else:
-                print(f"数据预处理--x-->{col}列不存在(可能的原因：1.日期列被替换为date，2.重复删除或列名错误)")
         # cols.remove(self.target)
         # cols.remove('date')
         df_date = df_raw[['date']]

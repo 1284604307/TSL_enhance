@@ -49,6 +49,7 @@ argObjet['root_path'] = "/kaggle/input/aemo-electricity/"
 argObjet['data_path'] = "AEMO_QLD_electricity_processed.csv"
 argObjet['result_rpath'] = "/kaggle/working"
 argObjet['model_id'] = "["+argObjet['data_path'].split(".")[0]+"]_"+argObjet['model']+"_"+argObjet['task_name']+"_"+argObjet['seq_len']+"_"+argObjet['pred_len']
+argObjet['num_workers'] = "10"
 
 args = []
 for key,value in argObjet.items():

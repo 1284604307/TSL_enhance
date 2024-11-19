@@ -5,6 +5,7 @@ import pandas as pd
 from sklearn.metrics import r2_score, mean_absolute_error, mean_squared_error
 
 from utils.metrics import metric
+import seaborn as sns
 
 
 # def drawResultCompare(result, real, tag):
@@ -70,3 +71,22 @@ def metricAndSave(preds, trues,folder_path):
     np.savetxt(folder_path + 'pred.csv', preds, delimiter=',')
     np.savetxt(folder_path + 'trues.csv', trues, delimiter=',')
     return mae, mse, rmse, mape, mspe
+
+def drawBBox(rawData,figPath="figure/箱型图.png"):
+    # 绘制箱型图
+    rc = {'font.sans-serif': 'SimHei',
+          'axes.unicode_minus': False}
+    # 设置Seaborn的风格
+    sns.set_style("whitegrid",rc=rc)
+
+    plt.figure(figsize=(15, 10))
+
+    # 绘制每个数值列的箱型图
+    for i, column in enumerate(rawData.columns, 1):
+        plt.subplot(3, 3, i)
+        sns.boxplot(y=rawData[column], color='purple')
+        plt.title(column)
+
+    plt.tight_layout()
+    plt.savefig(figPath, dpi=600, bbox_inches='tight')
+    plt.show()
