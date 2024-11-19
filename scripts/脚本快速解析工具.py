@@ -1,4 +1,4 @@
-argsContent  = '''--model TCN --date_column timestamp --is_training 1 --root_path D:\深度学习\代码\A数据集/ --data_path pv_data.xlsx --model_id TimesNet_96_96 --seq_len 96 --label_len 48 --pred_len 1 --e_layers 2 --d_layers 1 --factor 3 --enc_in 7 --dec_in 7 --c_out 1 --d_model 16 --d_ff 32 --des Exp --itr 1 --top_k 5 --task_name conv --data conv_ETTh1 --features MS --target 发电功率'''
+argsContent  = '''--model TCN --learning_rate 0.001 --date_column timestamp --is_training 1 --root_path D:\深度学习\代码\A数据集/ --data_path pv_data.xlsx --model_id TimesNet_96_96 --seq_len 96 --label_len 48 --pred_len 1 --e_layers 2 --d_layers 1 --factor 3 --enc_in 7 --dec_in 7 --c_out 1 --d_model 16 --d_ff 32 --des Exp --itr 1 --top_k 5 --task_name conv --data conv_ETTh1 --features MS --target 发电功率'''
 
 argSplit = argsContent.split(" ")
 argObjet = {}

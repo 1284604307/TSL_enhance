@@ -5,7 +5,7 @@ import glob
 import re
 import torch
 from torch.utils.data import Dataset, DataLoader
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import StandardScaler, MinMaxScaler
 from utils.timefeatures import time_features
 from data_provider.m4 import M4Dataset, M4Meta
 from data_provider.uea import subsample, interpolate_missing, Normalizer
@@ -39,6 +39,24 @@ def readFileFromPath(file_path,date_column=None,ignore_columns=None):
                 print(f"数据预处理--x-->{col}列不存在(可能的原因：1.日期列被替换为date，2.重复删除或列名错误)")
     return df_raw
 
+
+class NoneScaler:
+    def __init__(self):
+        self.scale = None
+    def transform(self, X):
+        return X
+    def inverse_transform(self, X):
+        return X
+
+    def fit(self, X, y=None):
+        return self
+
+def getScaler(args):
+    if(args.scale):
+        return StandardScaler()
+    else:
+        return NoneScaler()
+
 class Dataset_ETT_hour(Dataset):
     def __init__(self, args, root_path, flag='train', size=None,
                  features='S', data_path='ETTh1.csv',
@@ -70,7 +88,7 @@ class Dataset_ETT_hour(Dataset):
         self.__read_data__()
 
     def __read_data__(self):
-        self.scaler = StandardScaler()
+        self.scaler = getScaler(self.args)
         df_raw = readFileFromPath(os.path.join(self.root_path,
                                           self.data_path),date_column=self.args.date_column,ignore_columns=self.args.ignore_columns)
 
@@ -163,7 +181,7 @@ class Dataset_ETT_minute(Dataset):
         self.__read_data__()
 
     def __read_data__(self):
-        self.scaler = StandardScaler()
+        self.scaler = getScaler(self.args)
         df_raw = readFileFromPath(os.path.join(self.root_path,
                                           self.data_path),date_column=self.args.date_column,ignore_columns=self.args.ignore_columns)
 
@@ -258,7 +276,7 @@ class Dataset_Custom(Dataset):
         self.__read_data__()
 
     def __read_data__(self):
-        self.scaler = StandardScaler()
+        self.scaler = getScaler(self.args)
         df_raw = readFileFromPath(os.path.join(self.root_path,
                                           self.data_path),date_column=self.args.date_column,ignore_columns=self.args.ignore_columns)
 
@@ -414,7 +432,7 @@ class PSMSegLoader(Dataset):
         self.flag = flag
         self.step = step
         self.win_size = win_size
-        self.scaler = StandardScaler()
+        self.scaler = getScaler(args)
         data = readFileFromPath(os.path.join(root_path, 'train.csv'),date_column=self.args.date_column,ignore_columns=self.args.ignore_columns)
         data = data.values[:, 1:]
         data = np.nan_to_num(data)
@@ -461,7 +479,8 @@ class MSLSegLoader(Dataset):
         self.flag = flag
         self.step = step
         self.win_size = win_size
-        self.scaler = StandardScaler()
+        self.args = args
+        self.scaler = getScaler(self.args)
         data = np.load(os.path.join(root_path, "MSL_train.npy"))
         self.scaler.fit(data)
         data = self.scaler.transform(data)
@@ -504,7 +523,8 @@ class SMAPSegLoader(Dataset):
         self.flag = flag
         self.step = step
         self.win_size = win_size
-        self.scaler = StandardScaler()
+        self.args = args
+        self.scaler = getScaler(self.args)
         data = np.load(os.path.join(root_path, "SMAP_train.npy"))
         self.scaler.fit(data)
         data = self.scaler.transform(data)
@@ -548,7 +568,8 @@ class SMDSegLoader(Dataset):
         self.flag = flag
         self.step = step
         self.win_size = win_size
-        self.scaler = StandardScaler()
+        self.args = args
+        self.scaler = getScaler(self.args)
         data = np.load(os.path.join(root_path, "SMD_train.npy"))
         self.scaler.fit(data)
         data = self.scaler.transform(data)
@@ -589,7 +610,8 @@ class SWATSegLoader(Dataset):
         self.flag = flag
         self.step = step
         self.win_size = win_size
-        self.scaler = StandardScaler()
+        self.args = args
+        self.scaler = getScaler(self.args)
 
         train_data = readFileFromPath(os.path.join(root_path, 'swat_train2.csv'),date_column=self.args.date_column,ignore_columns=self.args.ignore_columns)
         test_data = readFileFromPath(os.path.join(root_path, 'swat2.csv'),date_column=self.args.date_column,ignore_columns=self.args.ignore_columns)
@@ -771,14 +793,13 @@ class UEAloader(Dataset):
         return len(self.all_IDs)
 
 
+
 class Dataset_Conv_ETTh1(Dataset):
     def __init__(self, args, root_path, flag='train', size=None,
                  features='S', data_path='ETTh1.csv',
                  target='OT', scale=True, timeenc=0, freq='h', seasonal_patterns=None):
         # size [seq_len, label_len, pred_len]
         self.args = args
-        if args.scale is not None:
-            self.scale = args.scale
         # info
         if size is None:
             self.seq_len = 24 * 4 * 4
@@ -804,7 +825,7 @@ class Dataset_Conv_ETTh1(Dataset):
         self.__read_data__()
 
     def __read_data__(self):
-        self.scaler = StandardScaler()
+        self.scaler = getScaler(self.args)
         df_raw = readFileFromPath(os.path.join(self.root_path,
                                           self.data_path),date_column=self.args.date_column,ignore_columns=self.args.ignore_columns)
 
@@ -892,8 +913,6 @@ class Dataset_Conv_OTT(Dataset):
                  target='OT', scale=True, timeenc=0, freq='h', seasonal_patterns=None):
         # size [seq_len, label_len, pred_len]
         self.args = args
-        if args.scale is not None:
-            self.scale = args.scale
         # info
         if size is None:
             self.seq_len = 24 * 4 * 4
@@ -917,7 +936,7 @@ class Dataset_Conv_OTT(Dataset):
         self.__read_data__()
 
     def __read_data__(self):
-        self.scaler = StandardScaler()
+        self.scaler = getScaler(self.args)
         df_raw = readFileFromPath(os.path.join(self.root_path,
                                           self.data_path),date_column=self.args.date_column,ignore_columns=self.args.ignore_columns)
 
