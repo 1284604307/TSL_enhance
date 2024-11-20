@@ -24,7 +24,7 @@ def getBaseOutputPath():
     if isKaggle():
         return "/kaggle/working/"
     else:
-        return "../"
+        return "./"
 # def drawResultCompare(result, real, tag):
 #     drawResultCompare(result,real,tag,None)
 def drawResultCompare(result, real,tag,savePath):
@@ -107,5 +107,5 @@ def drawBBox(rawData,figPath="箱型图.png"):
         plt.title(column)
 
     plt.tight_layout()
-    plt.savefig(getBaseOutputPath()+"figure/"+figPath, dpi=600, bbox_inches='tight')
+    plt.savefig(getBaseOutputPath()+figPath, dpi=600, bbox_inches='tight')
     plt.show()

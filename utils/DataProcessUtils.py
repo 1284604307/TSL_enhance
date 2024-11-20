@@ -34,7 +34,7 @@ def processMissDataFromRawData(raw_data):
 
 def processErrorDataFromRawData(data):
 
-    drawUtil.drawBBox(data,figPath="figure/2_异常值检测_箱型图_前.png")
+    drawUtil.drawBBox(data,figPath="2_异常值检测_箱型图_前.png")
 
     # 定义异常值的阈值（可以根据具体情况调整）
     threshold = 1.5
@@ -59,6 +59,6 @@ def processErrorDataFromRawData(data):
     selected_data_interpolated_linear = data.interpolate(method='linear')
     print(selected_data_interpolated_linear.info())
 
-    drawUtil.drawBBox(data,figPath="figure/2_异常值检测_箱型图_后.png")
+    drawUtil.drawBBox(data,figPath="2_异常值检测_箱型图_后.png")
 
     return selected_data_interpolated_linear

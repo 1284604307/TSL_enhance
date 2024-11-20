@@ -123,7 +123,7 @@ def getArgsParser():
     parser.add_argument('--seed', type=int, default=2, help="Randomization seed")
     parser.add_argument('--jitter', default=False, action="store_true", help="Jitter preset augmentation")
     parser.add_argument('--scaling', default=False, action="store_true", help="Scaling preset augmentation")
-    parser.add_argument('--scale', default=True, action="store_true", help="归一化")
+    parser.add_argument('--scale', type=bool, default=False, help="归一化")
     parser.add_argument('--permutation', default=False, action="store_true",
                         help="Equal Length Permutation preset augmentation")
     parser.add_argument('--randompermutation', default=False, action="store_true",
