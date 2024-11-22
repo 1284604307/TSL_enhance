@@ -7,9 +7,9 @@ import numpy as np
 #The other advantage of using fourier over spline is that the function are periodic, and therefore more numerically bounded
 #Avoiding the issues of going out of grid
 
-class NaiveFourierKANLayer(th.nn.Module):
+class Model(th.nn.Module):
     def __init__( self, inputdim, outdim, gridsize, addbias=True, smooth_initialization=False):
-        super(NaiveFourierKANLayer,self).__init__()
+        super(Model,self).__init__()
         self.gridsize= gridsize
         self.addbias = addbias
         self.inputdim = inputdim

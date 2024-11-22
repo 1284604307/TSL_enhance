@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 from torch.nn.utils import weight_norm
 
-from models.effKAN import KAN
+from models.effKAN import Model as KAN
 
 
 class Chomp1d(nn.Module):

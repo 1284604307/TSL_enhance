@@ -48,7 +48,7 @@ class Exp_Basic(object):
             'TimeXer': TimeXer
         }
         self.load_models()
-        print(self.model_dict)
+        # print(self.model_dict)
         if args.model == 'Mamba':
             print('Please make sure you have successfully installed mamba_ssm')
             from models import Mamba
@@ -73,10 +73,14 @@ class Exp_Basic(object):
                     continue
                 try:
                     module = importlib.import_module(module_name)
+                    if("Model" in vars(module)):
+                        print(f"自动导入模型类{module_name}")
+                        self.model_dict[module_name] = module.Model
                     # 遍历模块中的所有属性（包括类等）
-                    for name, obj in vars(module).items():
-                        if isinstance(obj, type):  # 判断是否是类
-                            self.model_dict[module_name] = module
+                    # for name, obj in vars(module.Model).items():
+                    #     if isinstance(obj, type):  # 判断是否是类
+                    #         print(f"自动导入模型类{module_name}")
+                    #         self.model_dict[module_name] = module
                 except ImportError:
                     print(f"无法导入模块 {module_name}，可能存在依赖问题或代码错误")
                     continue

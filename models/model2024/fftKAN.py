@@ -63,6 +63,13 @@ class NaiveFourierKANLayer(th.nn.Module):
         y = th.reshape( y, outshape)
         return y
 
+class Model(th.nn.Module):
+    def __init__( self, inputdim, outdim, gridsize, addbias=True, smooth_initialization=False):
+        super(Model,self).__init__()
+        self.model = NaiveFourierKANLayer(inputdim, outdim, gridsize, addbias, smooth_initialization)
+    def forward(self,x):
+        return self.model(x)
+
 def demo():
     bs = 10
     L = 3 #Not necessary just to show that additional dimensions are batched like Linear

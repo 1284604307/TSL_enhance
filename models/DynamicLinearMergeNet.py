@@ -5,12 +5,12 @@ import torch.nn.functional as F
 import math
 
 
-class DynamicMergeNet(torch.nn.Module):
+class Model(torch.nn.Module):
     def __init__(
             self,
             models: List[torch.nn.Module],
     ):
-        super(DynamicMergeNet, self).__init__()
+        super(Model, self).__init__()
         self.models = models
 
     def forward(self, x: torch.Tensor):

@@ -143,6 +143,7 @@ def getArgsParser():
                         help="Discrimitive shapeDTW warp preset augmentation")
     parser.add_argument('--extra_tag', type=str, default="", help="Anything extra")
     parser.add_argument('--save_model', type=str, default=False, help="")
+    parser.add_argument('--frequency',type=str, default="1_h", help="采用时间频率(数量_单位)单位包括：天d 时h 分钟m 秒s")
 
     # TimeXer
     parser.add_argument('--patch_len', type=int, default=16, help='patch length')
@@ -157,6 +158,24 @@ def processAndPrintArgs(args):
     print(torch.cuda.is_available())
     print(f"输入特征数量：{args.enc_in},输出特征数量:{args.c_out}，输出时间步:{args.pred_len}")
     print(f"卷积层变：{args.num_channels}")
+    print(f"采样时间频率：{args.frequency}")
+    frequecy = args.frequency.split('_')
+    sampling_frequency = int(frequecy[0])
+    if(frequecy[1]=="m"):
+        sampling_frequency *= 60
+    elif(frequecy[1]=="h"):
+        sampling_frequency *= 3600
+    elif(frequecy[1]=="d"):
+        sampling_frequency *= 86400
+    args.frequency_map = {
+        'Yearly': 365*24*60*60 // sampling_frequency,
+        'Quarterly': 365*24*60*60 // (4 * sampling_frequency),
+        'Monthly': 30*24*60*60 // sampling_frequency,
+        'Weekly': 7*24*60*60 // sampling_frequency,
+        'Daily': 24*60*60 // sampling_frequency,
+        'Hourly': 3600 // sampling_frequency,
+        'Custom': 1
+    }
     if args.use_gpu and args.use_multi_gpu:
         args.devices = args.devices.replace(' ', '')
         device_ids = args.devices.split(',')
