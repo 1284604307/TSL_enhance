@@ -91,6 +91,9 @@ class Exp_Basic(object):
         return None
 
     def getModel(self,model_name):
+        if(model_name not in self.model_dict.keys()):
+            print(f"{model_name}不在备选模型中，可选择的模型：{self.model_dict.keys()}")
+            exit(0)
         return self.model_dict[model_name]
 
     def _acquire_device(self):
