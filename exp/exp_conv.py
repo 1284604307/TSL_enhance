@@ -170,9 +170,6 @@ class Exp_Conv(Exp_Basic):
                 preds.append(pred)
                 trues.append(true)
 
-                if i % 20 == 0:
-                    visual(true[0, :, -1], pred[0, :, -1], os.path.join(folder_path, str(i) + '.pdf'))
-
         preds = np.concatenate(preds, 0)
         trues = np.concatenate(trues, 0)
         print('test shape:', preds.shape, trues.shape)
