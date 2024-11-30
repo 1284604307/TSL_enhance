@@ -194,7 +194,7 @@ class Exp_Short_Term_Forecast(Exp_Basic):
                 batch_y_mark = batch_y_mark[:, -self.args.pred_len:, f_dim:].to(self.device)
 
                 preds.append(outputs.cpu().detach().numpy())
-                batch_y.append(batch_y_mark.cpu().detach().numpy())
+                trues.append(batch_y.cpu().detach().numpy())
 
             for i in range(0, preds.shape[0], preds.shape[0] // 10):
                 input = batch_x.detach().cpu().numpy()
