@@ -1,6 +1,8 @@
 from data_provider.data_factory import data_provider
 from data_provider.m4 import M4Meta
 from exp.exp_basic import Exp_Basic
+from utils.dtw_metric import accelerated_dtw
+from utils.metrics import metric
 from utils.tools import EarlyStopping, adjust_learning_rate, visual
 from utils.losses import mape_loss, mase_loss, smape_loss
 from utils.m4_summary import M4Summary
@@ -93,7 +95,7 @@ class Exp_Short_Term_Forecast(Exp_Basic):
 
                 batch_y_mark = batch_y_mark[:, -self.args.pred_len:, f_dim:].to(self.device)
                 loss_value = criterion(batch_x, self.args.frequency_map, outputs, batch_y, batch_y_mark)
-                loss_sharpness = mse((outputs[:, 1:, :] - outputs[:, :-1, :]), (batch_y[:, 1:, :] - batch_y[:, :-1, :]))
+                # loss_sharpness = mse((outputs[:, 1:, :] - outputs[:, :-1, :]), (batch_y[:, 1:, :] - batch_y[:, :-1, :]))
                 loss = loss_value  # + loss_sharpness * 1e-5
                 train_loss.append(loss.item())
 
@@ -111,9 +113,8 @@ class Exp_Short_Term_Forecast(Exp_Basic):
             print("Epoch: {} cost time: {}".format(epoch + 1, time.time() - epoch_time))
             train_loss = np.average(train_loss)
             vali_loss = self.vali(train_loader, vali_loader, criterion)
-            test_loss = vali_loss
-            print("Epoch: {0}, Steps: {1} | Train Loss: {2:.7f} Vali Loss: {3:.7f} Test Loss: {4:.7f}".format(
-                epoch + 1, train_steps, train_loss, vali_loss, test_loss))
+            print("Epoch: {0}, Steps: {1} | Train Loss: {2:.7f} Vali Loss: {3:.7f}".format(
+                epoch + 1, train_steps, train_loss, vali_loss))
             early_stopping(vali_loss, self.model, path)
             if early_stopping.early_stop:
                 print("Early stopping")
@@ -126,45 +127,36 @@ class Exp_Short_Term_Forecast(Exp_Basic):
 
         return self.model
 
-    def vali(self, train_loader, vali_loader, criterion):
-        x, _ = train_loader.dataset.last_insample_window()
-        y = vali_loader.dataset.timeseries
-        x = torch.tensor(x, dtype=torch.float32).to(self.device)
-        x = x.unsqueeze(-1)
-
+    def vali(self,train_loader, vali_loader, criterion):
+        total_loss = []
         self.model.eval()
         with torch.no_grad():
-            # decoder input
-            B, _, C = x.shape
-            dec_inp = torch.zeros((B, self.args.pred_len, C)).float().to(self.device)
-            dec_inp = torch.cat([x[:, -self.args.label_len:, :], dec_inp], dim=1).float()
-            # encoder - decoder
-            outputs = torch.zeros((B, self.args.pred_len, C)).float()  # .to(self.device)
-            id_list = np.arange(0, B, 500)  # validation set size
-            id_list = np.append(id_list, B)
-            for i in range(len(id_list) - 1):
-                outputs[id_list[i]:id_list[i + 1], :, :] = self.model(x[id_list[i]:id_list[i + 1]], None,
-                                                                      dec_inp[id_list[i]:id_list[i + 1]],
-                                                                      None).detach().cpu()
-            f_dim = -1 if self.args.features == 'MS' else 0
-            outputs = outputs[:, -self.args.pred_len:, f_dim:]
-            pred = outputs
-            true = torch.from_numpy(np.array(y))
-            batch_y_mark = torch.ones(true.shape)
+            iter_count = 0
+            for i, (batch_x, batch_y, batch_x_mark, batch_y_mark) in enumerate(vali_loader):
+                iter_count += 1
+                batch_x = batch_x.float().to(self.device)
+                batch_y = batch_y.float().to(self.device)
+                batch_y_mark = batch_y_mark.float().to(self.device)
+                # decoder input
+                dec_inp = torch.zeros_like(batch_y[:, -self.args.pred_len:, :]).float()
+                dec_inp = torch.cat([batch_y[:, :self.args.label_len, :], dec_inp], dim=1).float().to(self.device)
 
-            loss = criterion(x.detach().cpu()[:, :, 0], self.args.frequency_map, pred[:, :, 0], true, batch_y_mark)
+                outputs = self.model(batch_x, None, dec_inp, None)
 
-        self.model.train()
-        return loss
+                f_dim = -1 if self.args.features == 'MS' else 0
+                outputs = outputs[:, -self.args.pred_len:, f_dim:]
+                batch_y = batch_y[:, -self.args.pred_len:, f_dim:].to(self.device)
+
+                batch_y_mark = batch_y_mark[:, -self.args.pred_len:, f_dim:].to(self.device)
+                loss_value = criterion(batch_x, self.args.frequency_map, outputs, batch_y, batch_y_mark)
+                # loss_sharpness = mse((outputs[:, 1:, :] - outputs[:, :-1, :]), (batch_y[:, 1:, :] - batch_y[:, :-1, :]))
+                loss = loss_value  # + loss_sharpness * 1e-5
+                total_loss.append(loss.item())
+        total_loss = np.average(total_loss)
+        return total_loss
 
     def test(self, setting, test=0):
-        _, train_loader = self._get_data(flag='train')
-        _, test_loader = self._get_data(flag='test')
-        x, _ = train_loader.dataset.last_insample_window()
-        y = test_loader.dataset.timeseries
-        x = torch.tensor(x, dtype=torch.float32).to(self.device)
-        x = x.unsqueeze(-1)
-
+        test_data, test_loader = self._get_data(flag='test')
         if test:
             print('loading model')
             self.model.load_state_dict(torch.load(os.path.join('./checkpoints/' + setting, 'checkpoint.pth')))
@@ -173,63 +165,79 @@ class Exp_Short_Term_Forecast(Exp_Basic):
         if not os.path.exists(folder_path):
             os.makedirs(folder_path)
 
-        self.model.eval()
-        with torch.no_grad():
-            B, _, C = x.shape
-            dec_inp = torch.zeros((B, self.args.pred_len, C)).float().to(self.device)
-            dec_inp = torch.cat([x[:, -self.args.label_len:, :], dec_inp], dim=1).float()
-            # encoder - decoder
-            outputs = torch.zeros((B, self.args.pred_len, C)).float().to(self.device)
-            id_list = np.arange(0, B, 1)
-            id_list = np.append(id_list, B)
-            for i in range(len(id_list) - 1):
-                outputs[id_list[i]:id_list[i + 1], :, :] = self.model(x[id_list[i]:id_list[i + 1]], None,
-                                                                      dec_inp[id_list[i]:id_list[i + 1]], None)
-
-                if id_list[i] % 1000 == 0:
-                    print(id_list[i])
-
-            f_dim = -1 if self.args.features == 'MS' else 0
-            outputs = outputs[:, -self.args.pred_len:, f_dim:]
-            outputs = outputs.detach().cpu().numpy()
-
-            preds = outputs
-            trues = y
-            x = x.detach().cpu().numpy()
-
-            for i in range(0, preds.shape[0], preds.shape[0] // 10):
-                gt = np.concatenate((x[i, :, 0], trues[i]), axis=0)
-                pd = np.concatenate((x[i, :, 0], preds[i, :, 0]), axis=0)
-                visual(gt, pd, os.path.join(folder_path, str(i) + '.pdf'))
-
-        print('test shape:', preds.shape)
-
-        # result save
-        folder_path = './m4_results/' + self.args.model + '/'
+        preds = []
+        trues = []
+        folder_path = './test_results/' + setting + '/'
         if not os.path.exists(folder_path):
             os.makedirs(folder_path)
 
-        forecasts_df = pandas.DataFrame(preds[:, :, 0], columns=[f'V{i + 1}' for i in range(self.args.pred_len)])
-        forecasts_df.index = test_loader.dataset.ids[:preds.shape[0]]
-        forecasts_df.index.name = 'id'
-        forecasts_df.set_index(forecasts_df.columns[0], inplace=True)
-        forecasts_df.to_csv(folder_path + self.args.seasonal_patterns + '_forecast.csv')
+        self.model.eval()
+        with torch.no_grad():
+            iter_count = 0
+            train_loss = []
+            self.model.train()
+            epoch_time = time.time()
+            for i, (batch_x, batch_y, batch_x_mark, batch_y_mark) in enumerate(test_loader):
+                iter_count += 1
+                batch_x = batch_x.float().to(self.device)
+                batch_y = batch_y.float().to(self.device)
+                batch_y_mark = batch_y_mark.float().to(self.device)
+                # decoder input
+                dec_inp = torch.zeros_like(batch_y[:, -self.args.pred_len:, :]).float()
+                dec_inp = torch.cat([batch_y[:, :self.args.label_len, :], dec_inp], dim=1).float().to(self.device)
 
-        print(self.args.model)
-        file_path = './m4_results/' + self.args.model + '/'
-        if 'Weekly_forecast.csv' in os.listdir(file_path) \
-                and 'Monthly_forecast.csv' in os.listdir(file_path) \
-                and 'Yearly_forecast.csv' in os.listdir(file_path) \
-                and 'Daily_forecast.csv' in os.listdir(file_path) \
-                and 'Hourly_forecast.csv' in os.listdir(file_path) \
-                and 'Quarterly_forecast.csv' in os.listdir(file_path):
-            m4_summary = M4Summary(file_path, self.args.root_path)
-            # m4_forecast.set_index(m4_winner_forecast.columns[0], inplace=True)
-            smape_results, owa_results, mape, mase = m4_summary.evaluate()
-            print('smape:', smape_results)
-            print('mape:', mape)
-            print('mase:', mase)
-            print('owa:', owa_results)
+                outputs = self.model(batch_x, None, dec_inp, None)
+
+                f_dim = -1 if self.args.features == 'MS' else 0
+                outputs = outputs[:, -self.args.pred_len:, f_dim:]
+                batch_y = batch_y[:, -self.args.pred_len:, f_dim:].to(self.device)
+                batch_y_mark = batch_y_mark[:, -self.args.pred_len:, f_dim:].to(self.device)
+
+                preds.append(outputs.cpu().detach().numpy())
+                batch_y.append(batch_y_mark.cpu().detach().numpy())
+
+            for i in range(0, preds.shape[0], preds.shape[0] // 10):
+                input = batch_x.detach().cpu().numpy()
+                if test_data.scale and self.args.inverse:
+                    shape = input.shape
+                    input = test_data.inverse_transform(input.reshape(shape[0] * shape[1], -1)).reshape(shape)
+                gt = np.concatenate((input[i, :, 0], trues[i]), axis=0)
+                pd = np.concatenate((input[i, :, 0], preds[i, :, 0]), axis=0)
+                visual(gt, pd, os.path.join(folder_path, str(i) + '.pdf'))
+
+
+        preds = np.concatenate(preds, axis=0)
+        trues = np.concatenate(trues, axis=0)
+        print('test shape:', preds.shape, trues.shape)
+        preds = preds.reshape(-1, preds.shape[-2], preds.shape[-1])
+        trues = trues.reshape(-1, trues.shape[-2], trues.shape[-1])
+        print('test shape:', preds.shape, trues.shape)
+        # dtw calculation
+        if self.args.use_dtw:
+            dtw_list = []
+            manhattan_distance = lambda x, y: np.abs(x - y)
+            for i in range(preds.shape[0]):
+                x = preds[i].reshape(-1, 1)
+                y = trues[i].reshape(-1, 1)
+                if i % 100 == 0:
+                    print("calculating dtw iter:", i)
+                d, _, _, _ = accelerated_dtw(x, y, dist=manhattan_distance)
+                dtw_list.append(d)
+            dtw = np.array(dtw_list).mean()
         else:
-            print('After all 6 tasks are finished, you can calculate the averaged index')
+            dtw = 'not calculated'
+
+        mae, mse, rmse, mape, mspe = metric(preds, trues)
+        print('mse:{}, mae:{}, dtw:{}'.format(mse, mae, dtw))
+        f = open("result_long_term_forecast.txt", 'a')
+        f.write(setting + "  \n")
+        f.write('mse:{}, mae:{}, dtw:{}'.format(mse, mae, dtw))
+        f.write('\n')
+        f.write('\n')
+        f.close()
+
+        np.save(folder_path + 'metrics.npy', np.array([mae, mse, rmse, mape, mspe]))
+        np.save(folder_path + 'pred.npy', preds)
+        np.save(folder_path + 'true.npy', trues)
+
         return
