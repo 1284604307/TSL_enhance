@@ -25,24 +25,33 @@ def getBaseOutputPath():
         return "/kaggle/working/"
     else:
         return "./"
-def drawResultCompare(result, real,tag,savePath=None):
 
-    plt.rcParams['font.sans-serif'] = ['SimHei']
-    plt.rcParams['axes.unicode_minus'] = False
-    # 绘制真实值和预测值对比图
-    plt.figure(figsize=(12, 8))
-    plt.plot(real, label='真实值')
-    plt.plot(result, label=f'预测值')
-    plt.xticks(fontsize=15)
-    plt.yticks(fontsize=15)
-    plt.legend(loc='best', fontsize=15)
-    plt.ylabel('负荷值', fontsize=15)
-    plt.xlabel('采样点', fontsize=15)
-    plt.title(f"{tag}", fontsize=15)
-    plt.show()
-    if savePath!=None:
-        plt.savefig(f'{savePath}.png')
-        print(f"结果对比图保存到{savePath}")
+def drawResultCompare(result, real,tag,savePath=None):
+    try:
+        if(len(result.shape)>2):
+            print(f"结果数据shape{result.shape}长度不为2，尝试处理数据")
+            result = result[:,-1]
+            real = real[:,-1]
+            print(f"处理结果{result.shape}")
+        plt.rcParams['font.sans-serif'] = ['SimHei']
+        plt.rcParams['axes.unicode_minus'] = False
+        # 绘制真实值和预测值对比图
+        plt.figure(figsize=(12, 8))
+        plt.plot(real, label='真实值')
+        plt.plot(result, label=f'预测值')
+        plt.xticks(fontsize=15)
+        plt.yticks(fontsize=15)
+        plt.legend(loc='best', fontsize=15)
+        plt.ylabel('负荷值', fontsize=15)
+        plt.xlabel('采样点', fontsize=15)
+        plt.title(f"{tag}", fontsize=15)
+        plt.show()
+        if savePath!=None:
+            plt.savefig(f'{savePath}.png')
+            print(f"结果对比图保存到{savePath}")
+    except Exception as e:
+        print("绘制结果图失败")
+        print(e)
 
 def saveResultCompare(predicted_values, real,tag):
     # 将两个数组转换为DataFrame，分别作为两列
