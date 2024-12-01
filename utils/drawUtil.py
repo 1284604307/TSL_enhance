@@ -25,9 +25,7 @@ def getBaseOutputPath():
         return "/kaggle/working/"
     else:
         return "./"
-# def drawResultCompare(result, real, tag):
-#     drawResultCompare(result,real,tag,None)
-def drawResultCompare(result, real,tag,savePath):
+def drawResultCompare(result, real,tag,savePath=None):
 
     plt.rcParams['font.sans-serif'] = ['SimHei']
     plt.rcParams['axes.unicode_minus'] = False
