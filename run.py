@@ -4,6 +4,9 @@ import numpy as np
 import argsUtil
 from datetime import datetime, timezone, timedelta
 
+from utils import drawUtil
+from utils.drawUtil import getBaseOutputPath
+
 if __name__ == '__main__':
     fix_seed = 2021
     random.seed(fix_seed)
@@ -24,12 +27,15 @@ if __name__ == '__main__':
             exp = Exp(args)  # set experiments
             setting = argsUtil.getSettingsStr(args,ii)
 
+            drawUtil.saveTxt(drawUtil.getBaseOutputPath()+'results/' + setting + f'/参数配置_itr{ii}.txt', argsUtil.args2txt(args))
+
             print('>>>>>>>start training : {}>>>>>>>>>>>>>>>>>>>>>>>>>>'.format(setting))
             exp.train(setting)
 
             print('>>>>>>>testing : {}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'.format(setting))
             exp.test(setting)
             torch.cuda.empty_cache()
+
     else:
         ii = 0
         setting = argsUtil.getSettingsStr(args,ii)

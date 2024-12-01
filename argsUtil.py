@@ -228,3 +228,10 @@ def getSettingsStr(args,index):
         args.distil,
         args.des, index)
     return setting
+
+def args2txt(args):
+    args_dict = vars(args)
+    txt = ""
+    for param_name, param_value in args_dict.items():
+        txt += f"--{param_name} {param_value}\n"
+    return txt
