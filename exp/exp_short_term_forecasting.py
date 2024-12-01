@@ -229,9 +229,9 @@ class Exp_Short_Term_Forecast(Exp_Basic):
             dtw = np.array(dtw_list).mean()
         else:
             dtw = 'not calculated'
-
-        drawUtil.drawResultCompare(result=preds,real=outputs,tag=self.args.model_id)
-        drawUtil.metricAndSave(preds=preds,trues=outputs,folder_path=self.args.result_rpath)
+        real = outputs.cpu().detach().numpy()
+        drawUtil.drawResultCompare(result=preds,real=real,tag=self.args.model_id)
+        drawUtil.metricAndSave(preds=preds,trues=real,folder_path=self.args.result_rpath)
 
         # np.save(folder_path + 'metrics.npy', np.array([mae, mse, rmse, mape, mspe]))
         # np.save(folder_path + 'pred.npy', preds)
