@@ -229,9 +229,13 @@ class Exp_Short_Term_Forecast(Exp_Basic):
             dtw = np.array(dtw_list).mean()
         else:
             dtw = 'not calculated'
-        real = outputs.cpu().detach().numpy()
-        drawUtil.drawResultCompare(result=preds,real=real,tag=self.args.model_id)
-        drawUtil.metricAndSave(preds=preds,trues=real,folder_path=self.args.result_rpath)
+        if(len(preds.shape)>2):
+            print(f"结果数据shape{preds.shape}长度不为2，尝试处理数据")
+            preds = preds[:,-1]
+            trues = trues[:,-1]
+            print(f"处理结果{preds.shape}")
+        drawUtil.drawResultCompare(result=preds,real=trues,tag=self.args.model_id)
+        drawUtil.metricAndSave(preds=preds,trues=trues,folder_path=self.args.result_rpath)
 
         # np.save(folder_path + 'metrics.npy', np.array([mae, mse, rmse, mape, mspe]))
         # np.save(folder_path + 'pred.npy', preds)

@@ -28,11 +28,6 @@ def getBaseOutputPath():
 
 def drawResultCompare(result, real,tag,savePath=None):
     try:
-        if(len(result.shape)>2):
-            print(f"结果数据shape{result.shape}长度不为2，尝试处理数据")
-            result = result[:,-1]
-            real = real[:,-1]
-            print(f"处理结果{result.shape}")
         plt.rcParams['font.sans-serif'] = ['SimHei']
         plt.rcParams['axes.unicode_minus'] = False
         # 绘制真实值和预测值对比图
