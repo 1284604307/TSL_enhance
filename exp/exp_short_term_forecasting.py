@@ -235,6 +235,7 @@ class Exp_Short_Term_Forecast(Exp_Basic):
             trues = trues[:,-1]
             print(f"处理结果{preds.shape}")
         drawUtil.drawResultCompare(result=preds,real=trues,tag=self.args.model_id)
+        drawUtil.completeMSE(predicted=preds,real=trues)
         drawUtil.metricAndSave(preds=preds,trues=trues,folder_path=self.args.result_rpath)
 
         # np.save(folder_path + 'metrics.npy', np.array([mae, mse, rmse, mape, mspe]))
