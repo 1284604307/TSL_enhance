@@ -37,6 +37,13 @@ def readFileFromPath(file_path,date_column=None,ignore_columns=None):
                 cols.remove(col)
             else:
                 print(f"数据预处理--x-->{col}列不存在(可能的原因：1.日期列被替换为date，2.重复删除或列名错误)")
+
+    # 计算缺失值数量
+    missing_values_count = df_raw.isnull().sum().sum()
+    print("WARNING --x--> 数据集中含缺失数据，缺失数量:", missing_values_count)
+    # 将缺失值替换为0
+    df_raw.fillna(0, inplace=True)
+
     return df_raw[cols]
 
 

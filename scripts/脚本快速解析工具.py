@@ -15,8 +15,6 @@ for i in range(int(len(argSplit) / 2)):
 
 argObjet['dec_in'] = argObjet['enc_in']
 # 输出特征数量
-argObjet['model_id'] = "[" + argObjet['data_path'].replace(" ", "-").split(".")[0] + "]_" + argObjet['model'] + "_" + \
-                       argObjet['task_name'] + "_" + argObjet['seq_len'] + "_" + argObjet['pred_len']
 
 
 args = []

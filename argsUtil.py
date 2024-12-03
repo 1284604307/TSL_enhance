@@ -36,7 +36,8 @@ def getArgsParser():
     parser.add_argument('--checkpoints', type=str, default='./checkpoints/', help='location of model checkpoints')
 
     # forecasting task
-    parser.add_argument('--ignore_columns', type=str, default="REGION,PERIODTYPE,SETTLEMENTDATE", help='忽略的列（不作为特征输入）')
+    parser.add_argument('--ignore_columns', type=str, default="REGION,PERIODTYPE,SETTLEMENTDATE",
+                        help='忽略的列（不作为特征输入）')
     parser.add_argument('--date_column', type=str, default="date", help='日期列')
     parser.add_argument('--seq_len', type=int, default=96, help='input sequence length')
     parser.add_argument('--label_len', type=int, default=48, help='start token length')
@@ -59,8 +60,8 @@ def getArgsParser():
     parser.add_argument('--dec_in', type=int, default=7, help='decoder input size')
     parser.add_argument('--c_out', type=int, default=7, help='output size')
 
-    parser.add_argument('--output_all', type=bool, default=True,help="预测所有特征")
-    parser.add_argument('--input_all', type=bool, default=True,help="输入所有特征")
+    parser.add_argument('--output_all', type=bool, default=True, help="预测所有特征")
+    parser.add_argument('--input_all', type=bool, default=True, help="输入所有特征")
     parser.add_argument('--input_features', type=list, help="当input_all!=True，使用该数组进行特征筛选",
                         default=['Open', 'High', 'Low', 'Volume', 'Close'])
     parser.add_argument('--output_features', type=list, default=['Close', 'Open', 'High', 'Low'])
@@ -143,7 +144,8 @@ def getArgsParser():
                         help="Discrimitive shapeDTW warp preset augmentation")
     parser.add_argument('--extra_tag', type=str, default="", help="Anything extra")
     parser.add_argument('--save_model', type=str, default=False, help="")
-    parser.add_argument('--frequency',type=str, default="1_h", help="采用时间频率(数量_单位)单位包括：天d 时h 分钟m 秒s")
+    parser.add_argument('--frequency', type=str, default="1_h",
+                        help="采用时间频率(数量_单位)单位包括：天d 时h 分钟m 秒s")
 
     # TimeXer
     parser.add_argument('--patch_len', type=int, default=16, help='patch length')
@@ -153,26 +155,32 @@ def getArgsParser():
     parser.add_argument('--kernel_size', type=int, default=2, help="卷积核尺寸")
     return parser
 
+
 def processAndPrintArgs(args):
     args.use_gpu = True if torch.cuda.is_available() else False
     print(torch.cuda.is_available())
+
+    if args.model_id == None:
+        args['model_id'] = "[" + args['data_path'].replace(" ", "-").split(".")[0] + "]_" + args['model'] + "_" + \
+                           args['task_name'] + "_" + args['seq_len'] + "_" + args['pred_len']
+
     print(f"输入特征数量：{args.enc_in},输出特征数量:{args.c_out}，输出时间步:{args.pred_len}")
     print(f"卷积层变：{args.num_channels}")
     print(f"采样时间频率：{args.frequency}")
     frequecy = args.frequency.split('_')
     sampling_frequency = int(frequecy[0])
-    if(frequecy[1]=="m"):
+    if (frequecy[1] == "m"):
         sampling_frequency *= 60
-    elif(frequecy[1]=="h"):
+    elif (frequecy[1] == "h"):
         sampling_frequency *= 3600
-    elif(frequecy[1]=="d"):
+    elif (frequecy[1] == "d"):
         sampling_frequency *= 86400
     args.frequency_map = {
-        'Yearly': 365*24*60*60 // sampling_frequency,
-        'Quarterly': 365*24*60*60 // (4 * sampling_frequency),
-        'Monthly': 30*24*60*60 // sampling_frequency,
-        'Weekly': 7*24*60*60 // sampling_frequency,
-        'Daily': 24*60*60 // sampling_frequency,
+        'Yearly': 365 * 24 * 60 * 60 // sampling_frequency,
+        'Quarterly': 365 * 24 * 60 * 60 // (4 * sampling_frequency),
+        'Monthly': 30 * 24 * 60 * 60 // sampling_frequency,
+        'Weekly': 7 * 24 * 60 * 60 // sampling_frequency,
+        'Daily': 24 * 60 * 60 // sampling_frequency,
         'Hourly': 3600 // sampling_frequency,
         'Custom': 1
     }
@@ -186,8 +194,8 @@ def processAndPrintArgs(args):
     args.num_channels = [int(i) for i in args.num_channels.split(',')]
     return args
 
-def getExp(args):
 
+def getExp(args):
     if args.task_name == 'long_term_forecast':
         Exp = Exp_Long_Term_Forecast
     elif args.task_name == 'short_term_forecast':
@@ -206,7 +214,8 @@ def getExp(args):
         Exp = Exp_Long_Term_Forecast
     return Exp
 
-def getSettingsStr(args,index):
+
+def getSettingsStr(args, index):
     setting = '{}_{}_{}_{}_ft{}_sl{}_ll{}_pl{}_dm{}_nh{}_el{}_dl{}_df{}_expand{}_dc{}_fc{}_eb{}_dt{}_{}_{}'.format(
         args.task_name,
         args.model_id,
@@ -228,6 +237,7 @@ def getSettingsStr(args,index):
         args.distil,
         args.des, index)
     return setting
+
 
 def args2txt(args):
     args_dict = vars(args)
