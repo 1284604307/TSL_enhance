@@ -26,7 +26,7 @@ if __name__ == '__main__':
             # setting record of experiments
             exp = Exp(args)  # set experiments
             setting = argsUtil.getSettingsStr(args,ii)
-
+            print(f"保存配置信息 -> {setting}")
             drawUtil.saveTxt(drawUtil.getBaseOutputPath()+'results/' + setting + f'/参数配置_itr{ii}.txt', argsUtil.args2txt(args))
 
             print('>>>>>>>start training : {}>>>>>>>>>>>>>>>>>>>>>>>>>>'.format(setting))
