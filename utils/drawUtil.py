@@ -23,12 +23,16 @@ def isKaggle():
         return False
 
 
-def getBaseOutputPath():
+def getBaseOutputPath(args):
     if isKaggle():
-        return "/kaggle/working/"
+        path = f"/kaggle/working/"
     else:
-        return "./"
-
+        path = f"./"
+    if(args != None):
+        path += args.model+"/"
+    if not os.path.exists(path):
+        os.makedirs(path)
+    return path
 
 def saveTxt(path, txt):
     dir_path = os.path.dirname(path)

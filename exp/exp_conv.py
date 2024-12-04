@@ -145,7 +145,7 @@ class Exp_Conv(Exp_Basic):
 
         preds = []
         trues = []
-        folder_path = drawUtil.getBaseOutputPath()+'test_results/' + setting + '/'
+        folder_path = drawUtil.getBaseOutputPath(self.args)+'test_results/' + setting + '/'
         if not os.path.exists(folder_path):
             os.makedirs(folder_path)
 
@@ -181,7 +181,7 @@ class Exp_Conv(Exp_Basic):
         )
 
         # result save
-        folder_path = drawUtil.getBaseOutputPath()+'results/' + setting + '/'
+        folder_path = drawUtil.getBaseOutputPath(self.args)+'results/' + setting + '/'
         if not os.path.exists(folder_path):
             os.makedirs(folder_path)
 
