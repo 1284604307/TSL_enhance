@@ -75,10 +75,10 @@ class TemporalConvNet(nn.Module):
         self.transferLayer = nn.modules.Linear(in_features= seq_len , out_features=pred_len)
 
     def forward(self, x):
+        x = x.permute(0, 2, 1)
         out = self.network(x)
         out = self.transferLayer(out)
-        # for i in range(self.pred_len-1):
-        #     out = torch.cat((out, out), dim=1)
+        out = out.permute(0,2,1)
         return out
 
 

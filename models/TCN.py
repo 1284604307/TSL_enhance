@@ -73,10 +73,13 @@ class TemporalConvNet(nn.Module):
         self.network = nn.Sequential(*layers)
 
     def forward(self, x):
+        # 置换2，3，todo 为了按单时间步特征通道卷积训练
+        x = x.permute(0, 2, 1)
         out = self.network(x)
-        # for i in range(self.pred_len-1):
-        #     out = torch.cat((out, out), dim=1)
-        return out[:, :self.c_out, :self.pred_len]
+        out = out[:, :self.c_out, :self.pred_len]
+        # 置换2，3，todo 匹配标签
+        out = out.permute(0, 2, 1)
+        return out
 
 
 class Model(nn.Module):

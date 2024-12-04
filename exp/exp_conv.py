@@ -47,15 +47,14 @@ class Exp_Conv(Exp_Basic):
 
                 batch_x = batch_x.float().to(self.device)
                 batch_y = batch_y.float().to(self.device)
-                batch_x = batch_x.permute(0, 2, 1)
                 # imputation
                 outputs = self.model(batch_x)
                 if len(batch_y.shape)<len(outputs.shape):
                     # 补充一层，使模型输出shape = y shape
                     batch_y = batch_y.unsqueeze(1)
                 # todo 多对多预测，调换预测的通道次序
-                if(self.args.features.endswith("M")):
-                    batch_y = batch_y.permute(0, 2, 1)
+                # if(self.args.features.endswith("M")):
+                #     batch_y = batch_y.permute(0, 2, 1)
                 loss = criterion(outputs, batch_y)
                 total_loss.append(loss.detach().cpu().numpy())
         total_loss = np.average(total_loss)
@@ -88,22 +87,14 @@ class Exp_Conv(Exp_Basic):
             for i, (batch_x, batch_y) in enumerate(train_loader):
                 iter_count += 1
                 model_optim.zero_grad()
-                # 置换2，3，todo 应该是为了按通道训练
-                batch_x = batch_x.permute(0, 2, 1)
+                # 置换2，3，todo 为了按单时间步特征通道卷积训练
+                # batch_x = batch_x.permute(0, 2, 1)
 
                 batch_x = batch_x.float().to(self.device)
                 outputs = self.model(batch_x)
-                if len(batch_y.shape)<len(outputs.shape):
-                    # 补充一层，使模型输出shape = y shape
-                    batch_y = batch_y.unsqueeze(-1)
-                # todo 多对多预测，调换预测的通道次序
-                if(self.args.features.endswith("M")):
-                    batch_y = batch_y.permute(0, 2, 1)
-                batch_y = batch_y.float().to(self.device)
-                # f_dim = -1 if self.args.features == 'MS' else 0
-                # outputs = outputs[:, :, f_dim:]
 
-                # loss = criterion(outputs[mask == 0], batch_x[mask == 0])
+                batch_y = batch_y.float().to(self.device)
+
                 loss = criterion(outputs, batch_y)
                 train_loss.append(loss.item())
 
@@ -154,16 +145,15 @@ class Exp_Conv(Exp_Basic):
             for i, (batch_x, batch_y) in enumerate(test_loader):
                 batch_x = batch_x.float().to(self.device)
                 batch_y = batch_y.float().to(self.device)
-                batch_x = batch_x.permute(0, 2, 1)
                 # imputation
                 outputs = self.model(batch_x)
                 outputs = outputs.detach().cpu().numpy()
                 if len(batch_y.shape)<len(outputs.shape):
                     # 补充一层，使模型输出shape = y shape
                     batch_y = batch_y.unsqueeze(1)
-                # todo 多对多预测，调换预测的通道次序
-                if(self.args.features.endswith("M")):
-                    batch_y = batch_y.permute(0, 2, 1)
+                # # todo 多对多预测，调换预测的通道次序
+                # if(self.args.features.endswith("M")):
+                #     batch_y = batch_y.permute(0, 2, 1)
                 pred = outputs
                 true = batch_y.cpu().numpy()
 

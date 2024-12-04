@@ -27,7 +27,7 @@ def getBaseOutputPath(args):
     if isKaggle():
         path = f"/kaggle/working/"
     else:
-        path = f"./"
+        path = f"./results/"
     if(args != None):
         path += args.model+"/"
     if not os.path.exists(path):

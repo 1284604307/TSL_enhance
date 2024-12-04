@@ -12,7 +12,6 @@ import importlib
 import os
 
 
-
 class Exp_Basic(object):
     def __init__(self, args):
         self.args = args
@@ -57,7 +56,6 @@ class Exp_Basic(object):
         self.device = self._acquire_device()
         self.model = self._build_model().to(self.device)
 
-
     def load_models(self):
         """
         遍历指定文件夹，查找Python模块（.py文件）并尝试导入其中的类进行实例化
@@ -69,13 +67,14 @@ class Exp_Basic(object):
             # 只处理.py文件，忽略其他文件类型和文件夹
             if file.endswith('.py'):
                 module_name = file[:-3]  # 去掉.py后缀获取模块名
-                if(module_name in self.model_dict.keys()):
+                if (module_name in self.model_dict.keys()):
                     continue
                 try:
                     module = importlib.import_module(module_name)
-                    if("Model" in vars(module)):
-                        print(f"自动导入模型类{module_name}")
-                        self.model_dict[module_name] = module.Model
+                    if ("Model" in vars(module)):
+                        print(f"自动导入模型类{module_name} 命名：{module_name.replace('_', '-')}")
+                        self.model_dict[module_name.replace("_", "-")] = module
+                        # module.Model
                     # 遍历模块中的所有属性（包括类等）
                     # for name, obj in vars(module.Model).items():
                     #     if isinstance(obj, type):  # 判断是否是类
@@ -85,13 +84,12 @@ class Exp_Basic(object):
                     print(f"无法导入模块 {module_name}，可能存在依赖问题或代码错误")
                     continue
 
-
     def _build_model(self):
         raise NotImplementedError
         return None
 
-    def getModel(self,model_name):
-        if(model_name not in self.model_dict.keys()):
+    def getModel(self, model_name):
+        if (model_name not in self.model_dict.keys()):
             print(f"{model_name}不在备选模型中，可选择的模型：{self.model_dict.keys()}")
             exit(0)
         return self.model_dict[model_name]

@@ -40,7 +40,8 @@ def readFileFromPath(file_path,date_column=None,ignore_columns=None):
 
     # 计算缺失值数量
     missing_values_count = df_raw.isnull().sum().sum()
-    print("WARNING --x--> 数据集中含缺失数据，缺失数量:", missing_values_count)
+    if missing_values_count!=0:
+        print("WARNING --x--> 数据集中含缺失数据，缺失数量:", missing_values_count)
     # 将缺失值替换为0
     df_raw.fillna(0, inplace=True)
 

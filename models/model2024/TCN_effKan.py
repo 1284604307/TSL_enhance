@@ -75,12 +75,23 @@ class TemporalConvNet_effKAN(nn.Module):
         # 增加一个转换层，使输出的时间步 = 需要的时间步
         # 增加一个转换层，使输出的结果 = 需要的结果长度( 1 或 特征长度)
         self.transferLayer = nn.modules.Linear(in_features= seq_len , out_features=c_out)
-        self.e_kan = KAN([num_channels[-1],10, c_out])
+        # todo 配置KAN隐层数量  最后应该输出多个特征还是多个时间步【有待考虑】
+        self.e_kan = KAN([num_channels[-1],10, pred_len])
 
     def forward(self, x):
+        # 置换2，3，todo 为了按单时间步特征通道卷积训练
+        x = x.permute(0, 2, 1)
+
         out = self.network(x)
         out = self.transferLayer(out)
         out = self.e_kan(out[:,:,-1])
+
+        # if len(batch_y.shape)<len(outputs.shape):
+        #     # 补充一层，使模型输出shape = y shape
+        #     batch_y = batch_y.unsqueeze(-1)
+        # # todo 多对多预测，调换预测的通道次序
+        # if(self.args.features.endswith("M")):
+        #     batch_y = batch_y.permute(0, 2, 1)
         return out
 
 
