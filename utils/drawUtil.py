@@ -44,6 +44,7 @@ def saveTxt(path, txt):
 
 
 def drawResultCompare(result, real, tag, savePath=None):
+
     try:
         plt.rcParams['font.sans-serif'] = ['SimHei']
         plt.rcParams['axes.unicode_minus'] = False
@@ -66,7 +67,7 @@ def drawResultCompare(result, real, tag, savePath=None):
         print(e)
 
 
-def saveResultCompare(predicted_values, real, tag):
+def saveResultCompare(predicted_values, real, tag="结果数据"):
     # 将两个数组转换为DataFrame，分别作为两列
     data = pd.DataFrame({
         '真实值': real,
@@ -91,6 +92,8 @@ def completeMSE(real, predicted):
     # 将列表转换为NumPy数组
     # real = np.reshape(real, -1)
     # predicted = predicted.reshape(-1)
+    print("\033[1m" + "Complete 预测效果" + "\033[0m")
+    print(f'  {"标签形状:":<10}{str(real.shape):<20}  {"预测结果形状:":<10}{str(predicted.shape):<20}')
     real = np.array(real)
     prediction = np.array(predicted)
     R2 = r2_score(real, prediction)
@@ -100,8 +103,9 @@ def completeMSE(real, predicted):
     MAPE = np.mean(np.abs((real - prediction) / prediction))
     MSPE = np.mean(np.square((prediction - real) / real))
     # print(f'\n{model_name} 模型评价指标:')
-    print(f'R2: {R2:.4f},MSE: {MSE:.4f},MAE: {MAE:.4f}')
-    print(f'RMSE: {RMSE:.4f},MAPE: {MAPE:.4f},MSPE: {MSPE:.4f}')
+    print(f'  {"R2:":<10}{R2:<20}  {"MSE:":<10}{MSE:<20}')
+    print(f'  {"R2:":<10}{MAE:<20}  {"RMSE:":<10}{RMSE:<20}')
+    print(f'  {"MAPE:":<10}{MAPE:<20}  {"MSPE:":<10}{MSPE:<20}')
     # print(f',RSE: {RSE(prediction,real):.4f},CORR: {CORR(prediction,real):.4f}')
 
 
@@ -112,7 +116,7 @@ def metricAndSave(preds, trues, folder_path):
                np.array([f"mae:{mae}", f"mse:{mse}", f"rmse:{rmse}", f"mape:{mape}", f"mspe:{mspe}"]), fmt='%s')
     np.savetxt(folder_path + 'pred.csv', preds, delimiter=',')
     np.savetxt(folder_path + 'trues.csv', trues, delimiter=',')
-    print()
+    print("结果已保存到:{}".format(folder_path + 'metrics.txt'))
     return mae, mse, rmse, mape, mspe
 
 

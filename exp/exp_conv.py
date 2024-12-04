@@ -178,16 +178,10 @@ class Exp_Conv(Exp_Basic):
         drawUtil.drawResultCompare(
             result=preds,
             real=trues,
-            tag="tcn test",
+            tag=self.model,
             savePath=folder_path+'test.png',
         )
-        mae, mse, rmse, mape, mspe = metric(preds, trues)
-        print('mse:{}, mae:{}'.format(mse, mae))
-        drawUtil.metricAndSave(preds,trues,folder_path)
-        # f = open("result_imputation.txt", 'a')
-        # f.write(setting + "  \n")
-        # f.write('mse:{}, mae:{}'.format(mse, mae))
-        # f.write('\n')
-        # f.write('\n')
-        # f.close()
+        drawUtil.completeMSE(preds, trues)
+        drawUtil.metricAndSave(preds, trues, folder_path)
+        drawUtil.saveResultCompare(preds, trues)
         return
