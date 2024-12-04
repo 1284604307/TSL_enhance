@@ -54,12 +54,13 @@ class TemporalBlock(nn.Module):
 
 # class TemporalConvNet(nn.Module):
 class TemporalConvNet(nn.Module):
-    def __init__(self, num_inputs, num_channels, kernel_size=2, dropout=0.2, c_out=1,seq_len=96 , pred_len=1):
+    def __init__(self, num_inputs, num_channels, kernel_size=2, dropout=0.2, c_out=1, seq_len=96, pred_len=1):
         super(TemporalConvNet, self).__init__()
         layers = []
+        self.c_out = c_out
         self.pred_len = pred_len
         # 增加一个转换Block，使输出的特征数 = 需要的特征数
-        num_channels.append(c_out)
+        # num_channels.append(c_out)
         # todo
         # num_channels.append(pred_len)
         num_levels = len(num_channels)
@@ -70,16 +71,12 @@ class TemporalConvNet(nn.Module):
             layers += [TemporalBlock(in_channels, out_channels, kernel_size, stride=1, dilation=dilation_size,
                                      padding=(kernel_size - 1) * dilation_size, dropout=dropout)]
         self.network = nn.Sequential(*layers)
-        # 增加一个转换层，使输出的时间步 = 需要的时间步
-        # 增加一个转换层，使输出的结果 = 需要的结果长度( 1 或 特征长度)
-        self.transferLayer = nn.modules.Linear(in_features= seq_len , out_features=pred_len)
 
     def forward(self, x):
         out = self.network(x)
-        out = self.transferLayer(out)
         # for i in range(self.pred_len-1):
         #     out = torch.cat((out, out), dim=1)
-        return out
+        return out[:, :self.c_out, :self.pred_len]
 
 
 class Model(nn.Module):
@@ -87,7 +84,7 @@ class Model(nn.Module):
     def __init__(self, configs):
         super().__init__()
         self.model = TemporalConvNet(configs.enc_in, configs.num_channels, configs.kernel_size, configs.dropout
-                                     , c_out=configs.c_out,seq_len=configs.seq_len,pred_len=configs.pred_len)
+                                     , c_out=configs.c_out, seq_len=configs.seq_len, pred_len=configs.pred_len)
 
     def forward(self, x):
         return self.model.forward(x)

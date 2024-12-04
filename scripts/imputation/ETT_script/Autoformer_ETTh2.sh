@@ -10,7 +10,7 @@ python -u run.py \
   --model_id ETTh2_mask_0.125 \
   --mask_rate 0.125 \
   --model $model_name \
-  --data ETTh2 \
+  --data c \
   --features M \
   --seq_len 96 \
   --label_len 0 \
