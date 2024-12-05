@@ -23,18 +23,19 @@ def isKaggle():
         return False
 
 
-def getBaseOutputPath(args = None,setting=None):
+def getBaseOutputPath(args=None, setting=None):
     if isKaggle():
         path = f"/kaggle/working/"
     else:
         path = f"./results/"
-    if(args != None):
-        path += args.model+"/"
-    if(setting != None):
-        path += setting+"/"
+    if (args != None):
+        path += args.model + "/"
+    if (setting != None):
+        path += setting + "/"
     if not os.path.exists(path):
         os.makedirs(path)
     return path
+
 
 def saveTxt(path, txt):
     dir_path = os.path.dirname(path)
@@ -46,7 +47,6 @@ def saveTxt(path, txt):
 
 
 def drawResultCompare(result, real, tag, savePath=None):
-
     try:
         # 设置中文字体及解决负号显示问题
         plt.rcParams['font.sans-serif'] = ['SimHei']
@@ -99,8 +99,8 @@ def saveResultCompare(predicted_values, real, basePath):
     columns_true = [f'真实值_时间步{i}' for i in range(real.shape[1])]
     columns_pred = [f'预测值_时间步{i}' for i in range(predicted_values.shape[1])]
     columns = columns_true + columns_pred
-    data = np.concatenate((real, predicted_values), axis = 1)
-    df = pd.DataFrame(data, columns = columns)
+    data = np.concatenate((real, predicted_values), axis=1)
+    df = pd.DataFrame(data, columns=columns)
     # data = pd.DataFrame({
     #     '真实值': real,
     #     '预测值': predicted_values
@@ -135,17 +135,22 @@ def completeMSE(real, predicted):
     MAPE = np.mean(np.abs((real - prediction) / prediction))
     MSPE = np.mean(np.square((prediction - real) / real))
     # print(f'\n{model_name} 模型评价指标:')
-    print(f'  {"R2:":<10}{R2:<20}  {"MSE:":<10}{MSE:<20}')
-    print(f'  {"MAE:":<10}{MAE:<20}  {"RMSE:":<10}{RMSE:<20}')
-    print(f'  {"MAPE:":<10}{MAPE:<20}  {"MSPE:":<10}{MSPE:<20}')
+    resultStr = ""
+    resultStr += f'  {"R2:":<10}{R2:<20}  {"MSE:":<10}{MSE:<20}\n'
+    resultStr += f'  {"MAE:":<10}{MAE:<20}  {"RMSE:":<10}{RMSE:<20}\n'
+    resultStr += f'  {"MAPE:":<10}{MAPE:<20}  {"MSPE:":<10}{MSPE:<20}\n'
+    print(resultStr)
+    return resultStr
+    # print(f'  {"R2:":<10}{R2:<20}  {"MSE:":<10}{MSE:<20}')
+    # print(f'  {"MAE:":<10}{MAE:<20}  {"RMSE:":<10}{RMSE:<20}')
+    # print(f'  {"MAPE:":<10}{MAPE:<20}  {"MSPE:":<10}{MSPE:<20}')
     # print(f',RSE: {RSE(prediction,real):.4f},CORR: {CORR(prediction,real):.4f}')
 
 
 def metricAndSave(preds, trues, folder_path):
     mae, mse, rmse, mape, mspe = metric(preds, trues)
-    print('mse:{}, mae:{}'.format(mse, mae))
-    np.savetxt(folder_path + 'metrics.txt',
-               np.array([f"mae:{mae}", f"mse:{mse}", f"rmse:{rmse}", f"mape:{mape}", f"mspe:{mspe}"]), fmt='%s')
+    resultStr = completeMSE(preds, trues)
+    saveTxt(folder_path + 'metrics.txt', resultStr)
     np.savetxt(folder_path + 'pred.csv', preds, delimiter=',')
     np.savetxt(folder_path + 'trues.csv', trues, delimiter=',')
     print("结果已保存到:{}".format(folder_path + 'metrics.txt'))

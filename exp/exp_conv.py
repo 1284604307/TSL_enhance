@@ -178,7 +178,7 @@ class Exp_Conv(Exp_Basic):
             tag=self.args.model,
             savePath=folder_path+'归一化预测对比.png',
         )
-        drawUtil.completeMSE(preds, trues)
+        # drawUtil.completeMSE(preds, trues)
         drawUtil.metricAndSave(preds, trues, folder_path)
         drawUtil.saveResultCompare(preds, trues,drawUtil.getBaseOutputPath(self.args,setting))
 
@@ -191,7 +191,7 @@ class Exp_Conv(Exp_Basic):
 
         drawUtil.drawResultCompare(result=preds,real=trues,tag=self.args.model,
                                    savePath=folder_path+'归一化预测对比.png',)
-        drawUtil.completeMSE(predicted=preds,real=trues)
+        # drawUtil.completeMSE(predicted=preds,real=trues)
         drawUtil.metricAndSave(preds=preds,trues=trues,folder_path=drawUtil.getBaseOutputPath(self.args,setting))
         drawUtil.saveResultCompare(preds, trues,drawUtil.getBaseOutputPath(self.args,setting))
 

@@ -240,7 +240,7 @@ class Exp_Short_Term_Forecast(Exp_Basic):
             print(f"处理结果{preds.shape}")
 
         drawUtil.drawResultCompare(result=preds,real=trues,tag=self.args.model)
-        drawUtil.completeMSE(predicted=preds,real=trues)
+        # drawUtil.completeMSE(predicted=preds,real=trues)
         drawUtil.metricAndSave(preds=preds,trues=trues,folder_path=drawUtil.getBaseOutputPath(self.args,setting))
 
         # if(len(preds.shape)==2):
@@ -250,7 +250,7 @@ class Exp_Short_Term_Forecast(Exp_Basic):
         trues= test_data.labelScaler.inverse_transform(np.array(trues))
 
         drawUtil.drawResultCompare(result=preds,real=trues,tag=self.args.model)
-        drawUtil.completeMSE(predicted=preds,real=trues)
+        # drawUtil.completeMSE(predicted=preds,real=trues)
         drawUtil.metricAndSave(preds=preds,trues=trues,folder_path=drawUtil.getBaseOutputPath(self.args,setting))
 
         # np.save(folder_path + 'metrics.npy', np.array([mae, mse, rmse, mape, mspe]))
