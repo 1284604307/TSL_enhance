@@ -77,9 +77,9 @@ def drawResultCompare(result, real, tag, savePath=None):
                 plt.xticks(fontsize=15)
                 plt.yticks(fontsize=15)
                 plt.legend(loc='best', fontsize=15)
-                plt.ylabel(f'负荷值（维度 {dim + 1}）', fontsize=15)
+                plt.ylabel(f'负荷值（dim {dim + 1}）', fontsize=15)
                 plt.xlabel('采样点', fontsize=15)
-                plt.title(f"{tag} - 维度 {dim + 1}", fontsize=15)
+                plt.title(f"{tag} - dim {dim + 1}", fontsize=15)
                 plt.show()
                 if savePath is not None:
                     plt.savefig(f'{savePath}_{dim}.png')

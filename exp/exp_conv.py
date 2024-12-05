@@ -175,8 +175,8 @@ class Exp_Conv(Exp_Basic):
         drawUtil.drawResultCompare(
             result=preds,
             real=trues,
-            tag=self.model,
-            savePath=folder_path+'test.png',
+            tag=self.args.model,
+            savePath=folder_path+'归一化预测对比.png',
         )
         drawUtil.completeMSE(preds, trues)
         drawUtil.metricAndSave(preds, trues, folder_path)
@@ -189,9 +189,11 @@ class Exp_Conv(Exp_Basic):
         preds= test_data.labelScaler.inverse_transform(np.array(preds))
         trues= test_data.labelScaler.inverse_transform(np.array(trues))
 
-        drawUtil.drawResultCompare(result=preds,real=trues,tag=self.args.model)
+        drawUtil.drawResultCompare(result=preds,real=trues,tag=self.args.model,
+                                   savePath=folder_path+'归一化预测对比.png',)
         drawUtil.completeMSE(predicted=preds,real=trues)
         drawUtil.metricAndSave(preds=preds,trues=trues,folder_path=drawUtil.getBaseOutputPath(self.args,setting))
+        drawUtil.saveResultCompare(preds, trues,drawUtil.getBaseOutputPath(self.args,setting))
 
 
         return
