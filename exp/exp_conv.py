@@ -167,11 +167,6 @@ class Exp_Conv(Exp_Basic):
         preds = np.reshape(preds, (preds.shape[0], -1))
         trues = np.reshape(trues, (trues.shape[0], -1))
 
-        if(len(preds.shape)==2):
-            for i in range(preds.shape[1]):
-                preds[:,i] = test_data.scaler.inverse_transform(np.array(preds[:,i]))
-                trues[:,i] = test_data.scaler.inverse_transform(np.array(trues[:,i]))
-
         # result save
         folder_path = drawUtil.getBaseOutputPath(self.args, setting)
         if not os.path.exists(folder_path):
@@ -189,10 +184,14 @@ class Exp_Conv(Exp_Basic):
 
 
         print("\n数据反归一化处理...")
+        # if(len(preds.shape)==2):
+        #     for i in range(preds.shape[1]):
         preds= test_data.labelScaler.inverse_transform(np.array(preds))
         trues= test_data.labelScaler.inverse_transform(np.array(trues))
 
         drawUtil.drawResultCompare(result=preds,real=trues,tag=self.args.model)
         drawUtil.completeMSE(predicted=preds,real=trues)
         drawUtil.metricAndSave(preds=preds,trues=trues,folder_path=drawUtil.getBaseOutputPath(self.args,setting))
+
+
         return
