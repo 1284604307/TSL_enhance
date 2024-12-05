@@ -98,6 +98,7 @@ class Dataset_ETT_hour(Dataset):
 
     def __read_data__(self):
         self.scaler = getScaler(self.args)
+        self.labelScaler = getScaler(self.args)
         df_raw = readFileFromPath(os.path.join(self.root_path,
                                           self.data_path),date_column=self.args.date_column,ignore_columns=self.args.ignore_columns)
 
@@ -112,12 +113,10 @@ class Dataset_ETT_hour(Dataset):
         elif self.features == 'S':
             df_data = df_raw[[self.target]]
 
-        if self.scale:
-            train_data = df_data[border1s[0]:border2s[0]]
-            self.scaler.fit(train_data.values)
-            data = self.scaler.transform(df_data.values)
-        else:
-            data = df_data.values
+        train_data = df_data[border1s[0]:border2s[0]]
+        self.scaler.fit(train_data.values)
+        self.labelScaler.fit(train_data.values[:,train_data.columns.get_loc(self.args.target),np.newaxis])
+        data = self.scaler.transform(df_data.values)
 
         df_stamp = df_raw[['date']][border1:border2]
         df_stamp['date'] = pd.to_datetime(df_stamp.date)
@@ -191,6 +190,7 @@ class Dataset_ETT_minute(Dataset):
 
     def __read_data__(self):
         self.scaler = getScaler(self.args)
+        self.labelScaler = getScaler(self.args)
         df_raw = readFileFromPath(os.path.join(self.root_path,
                                           self.data_path),date_column=self.args.date_column,ignore_columns=self.args.ignore_columns)
 
@@ -205,12 +205,10 @@ class Dataset_ETT_minute(Dataset):
         elif self.features == 'S':
             df_data = df_raw[[self.target]]
 
-        if self.scale:
-            train_data = df_data[border1s[0]:border2s[0]]
-            self.scaler.fit(train_data.values)
-            data = self.scaler.transform(df_data.values)
-        else:
-            data = df_data.values
+        train_data = df_data[border1s[0]:border2s[0]]
+        self.scaler.fit(train_data.values)
+        self.labelScaler.fit(train_data.values[:,train_data.columns.get_loc(self.args.target),np.newaxis])
+        data = self.scaler.transform(df_data.values)
 
         df_stamp = df_raw[['date']][border1:border2]
         df_stamp['date'] = pd.to_datetime(df_stamp.date)
@@ -286,6 +284,7 @@ class Dataset_Custom(Dataset):
 
     def __read_data__(self):
         self.scaler = getScaler(self.args)
+        self.labelScaler = getScaler(self.args)
         df_raw = readFileFromPath(os.path.join(self.root_path,
                                           self.data_path),date_column=self.args.date_column,ignore_columns=self.args.ignore_columns)
 
@@ -310,12 +309,10 @@ class Dataset_Custom(Dataset):
         elif self.features == 'S':
             df_data = df_raw[[self.target]]
 
-        if self.scale:
-            train_data = df_data[border1s[0]:border2s[0]]
-            self.scaler.fit(train_data.values)
-            data = self.scaler.transform(df_data.values)
-        else:
-            data = df_data.values
+        train_data = df_data[border1s[0]:border2s[0]]
+        self.scaler.fit(train_data.values)
+        self.labelScaler.fit(train_data.values[:,train_data.columns.get_loc(self.args.target),np.newaxis])
+        data = self.scaler.transform(df_data.values)
 
         df_stamp = df_raw[['date']][border1:border2]
         df_stamp['date'] = pd.to_datetime(df_stamp.date)
@@ -442,6 +439,7 @@ class PSMSegLoader(Dataset):
         self.step = step
         self.win_size = win_size
         self.scaler = getScaler(args)
+        self.labelScaler = getScaler(args)
         data = readFileFromPath(os.path.join(root_path, 'train.csv'),date_column=self.args.date_column,ignore_columns=self.args.ignore_columns)
         data = data.values[:, 1:]
         data = np.nan_to_num(data)
@@ -490,6 +488,7 @@ class MSLSegLoader(Dataset):
         self.win_size = win_size
         self.args = args
         self.scaler = getScaler(self.args)
+        self.labelScaler = getScaler(self.args)
         data = np.load(os.path.join(root_path, "MSL_train.npy"))
         self.scaler.fit(data)
         data = self.scaler.transform(data)
@@ -534,6 +533,7 @@ class SMAPSegLoader(Dataset):
         self.win_size = win_size
         self.args = args
         self.scaler = getScaler(self.args)
+        self.labelScaler = getScaler(self.args)
         data = np.load(os.path.join(root_path, "SMAP_train.npy"))
         self.scaler.fit(data)
         data = self.scaler.transform(data)
@@ -579,6 +579,7 @@ class SMDSegLoader(Dataset):
         self.win_size = win_size
         self.args = args
         self.scaler = getScaler(self.args)
+        self.labelScaler = getScaler(self.args)
         data = np.load(os.path.join(root_path, "SMD_train.npy"))
         self.scaler.fit(data)
         data = self.scaler.transform(data)
@@ -621,6 +622,8 @@ class SWATSegLoader(Dataset):
         self.win_size = win_size
         self.args = args
         self.scaler = getScaler(self.args)
+        self.labelScaler = getScaler(self.args)
+        self.labelScaler = getScaler(self.args)
 
         train_data = readFileFromPath(os.path.join(root_path, 'swat_train2.csv'),date_column=self.args.date_column,ignore_columns=self.args.ignore_columns)
         test_data = readFileFromPath(os.path.join(root_path, 'swat2.csv'),date_column=self.args.date_column,ignore_columns=self.args.ignore_columns)
@@ -835,6 +838,7 @@ class Dataset_Conv_ETTh1(Dataset):
 
     def __read_data__(self):
         self.scaler = getScaler(self.args)
+        self.labelScaler = getScaler(self.args)
         df_raw = readFileFromPath(os.path.join(self.root_path,
                                           self.data_path),date_column=self.args.date_column,ignore_columns=self.args.ignore_columns)
 
@@ -863,12 +867,10 @@ class Dataset_Conv_ETTh1(Dataset):
         elif self.features == 'S':
             df_data = df_raw[[self.target]]
 
-        if self.scale:
-            train_data = df_data[border1s[0]:border2s[0]]
-            self.scaler.fit(train_data.values)
-            data = self.scaler.transform(df_data.values)
-        else:
-            data = df_data.values
+        train_data = df_data[border1s[0]:border2s[0]]
+        self.scaler.fit(train_data.values)
+        self.labelScaler.fit(train_data.values[:,train_data.columns.get_loc(self.args.target),np.newaxis])
+        data = self.scaler.transform(df_data.values)
 
         df_stamp = df_date[['date']][border1:border2]
         df_stamp['date'] = pd.to_datetime(df_stamp.date)
@@ -946,6 +948,7 @@ class Dataset_Conv_OTT(Dataset):
 
     def __read_data__(self):
         self.scaler = getScaler(self.args)
+        self.labelScaler = getScaler(self.args)
         df_raw = readFileFromPath(os.path.join(self.root_path,
                                           self.data_path),date_column=self.args.date_column,ignore_columns=self.args.ignore_columns)
 
@@ -974,6 +977,7 @@ class Dataset_Conv_OTT(Dataset):
         if self.scale:
             train_data = df_data[border1s[0]:border2s[0]]
             self.scaler.fit(train_data.values)
+            self.labelScaler.fit(train_data.values[:,train_data.columns.get_loc(self.args.target),np.newaxis])
             data = self.scaler.transform(df_data.values)
         else:
             data = df_data.values
@@ -1057,6 +1061,7 @@ class Dataset_former(Dataset):
 
     def __read_data__(self):
         self.scaler = getScaler(self.args)
+        self.labelScaler = getScaler(self.args)
         df_raw = readFileFromPath(os.path.join(self.root_path,
                                                self.data_path),date_column=self.args.date_column,ignore_columns=self.args.ignore_columns)
 
@@ -1071,12 +1076,10 @@ class Dataset_former(Dataset):
         elif self.features == 'S':
             df_data = df_raw[[self.target]]
 
-        if self.scale:
-            train_data = df_data[border1s[0]:border2s[0]]
-            self.scaler.fit(train_data.values)
-            data = self.scaler.transform(df_data.values)
-        else:
-            data = df_data.values
+        train_data = df_data[border1s[0]:border2s[0]]
+        self.scaler.fit(train_data.values)
+        self.labelScaler.fit(train_data.values[:,train_data.columns.get_loc(self.args.target),np.newaxis])
+        data = self.scaler.transform(df_data.values)
 
         df_stamp = df_raw[['date']][border1:border2]
         df_stamp['date'] = pd.to_datetime(df_stamp.date)

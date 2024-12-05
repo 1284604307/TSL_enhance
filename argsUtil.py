@@ -18,7 +18,7 @@ def getArgsParser():
     parser.add_argument('--task_name', type=str, required=True, default='long_term_forecast',
                         help='task name, options:[long_term_forecast, short_term_forecast, imputation, classification, anomaly_detection]')
     parser.add_argument('--is_training', type=int, required=True, default=1, help='status')
-    parser.add_argument('--model_id', type=str, required=False, default='test', help='model id')
+    parser.add_argument('--model_id', type=str, required=False, help='model id')
     parser.add_argument('--model', type=str, required=True, default='Autoformer',
                         help='model name, options: [Autoformer, Transformer, TimesNet]')
 
@@ -161,8 +161,7 @@ def processAndPrintArgs(args):
     print(torch.cuda.is_available())
 
     if args.model_id == None:
-        args['model_id'] = "[" + args['data_path'].replace(" ", "-").split(".")[0] + "]_" + args['model'] + "_" + \
-                           args['task_name'] + "_" + args['seq_len'] + "_" + args['pred_len']
+        args.model_id =f'[{ args.data_path.replace(" ", "-").split(".")[0]}]_{args.seq_len}_{args.pred_len}'
 
     print(f"输入特征数量：{args.enc_in},输出特征数量:{args.c_out}，输出时间步:{args.pred_len}")
     print(f"卷积层变：{args.num_channels}")

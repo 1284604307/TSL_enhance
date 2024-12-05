@@ -212,8 +212,11 @@ class Exp_Short_Term_Forecast(Exp_Basic):
         preds = np.concatenate(preds, axis=0)
         trues = np.concatenate(trues, axis=0)
         print('test shape:', preds.shape, trues.shape)
-        preds = preds.reshape(-1, preds.shape[-2], preds.shape[-1])
-        trues = trues.reshape(-1, trues.shape[-2], trues.shape[-1])
+
+
+        preds = preds.reshape(preds.shape[0], -1)
+        trues = trues.reshape(preds.shape[0], -1)
+
         print('test shape:', preds.shape, trues.shape)
         # dtw calculation
         if self.args.use_dtw:
@@ -229,14 +232,26 @@ class Exp_Short_Term_Forecast(Exp_Basic):
             dtw = np.array(dtw_list).mean()
         else:
             dtw = 'not calculated'
+
         if(len(preds.shape)>2):
             print(f"结果数据shape{preds.shape}长度不为2，尝试处理数据")
             preds = preds[:,-1]
             trues = trues[:,-1]
             print(f"处理结果{preds.shape}")
-        drawUtil.drawResultCompare(result=preds,real=trues,tag=self.args.model_id)
+
+        drawUtil.drawResultCompare(result=preds,real=trues,tag=self.args.model)
         drawUtil.completeMSE(predicted=preds,real=trues)
-        drawUtil.metricAndSave(preds=preds,trues=trues,folder_path=self.args.result_rpath)
+        drawUtil.metricAndSave(preds=preds,trues=trues,folder_path=drawUtil.getBaseOutputPath(self.args,setting))
+
+        # if(len(preds.shape)==2):
+        #     for i in range(preds.shape[1]):
+        print("\n数据反归一化处理...")
+        preds= test_data.labelScaler.inverse_transform(np.array(preds))
+        trues= test_data.labelScaler.inverse_transform(np.array(trues))
+
+        drawUtil.drawResultCompare(result=preds,real=trues,tag=self.args.model)
+        drawUtil.completeMSE(predicted=preds,real=trues)
+        drawUtil.metricAndSave(preds=preds,trues=trues,folder_path=drawUtil.getBaseOutputPath(self.args,setting))
 
         # np.save(folder_path + 'metrics.npy', np.array([mae, mse, rmse, mape, mspe]))
         # np.save(folder_path + 'pred.npy', preds)

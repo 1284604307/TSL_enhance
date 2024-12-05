@@ -23,13 +23,15 @@ def isKaggle():
         return False
 
 
-def getBaseOutputPath(args):
+def getBaseOutputPath(args = None,setting=None):
     if isKaggle():
         path = f"/kaggle/working/"
     else:
         path = f"./results/"
     if(args != None):
         path += args.model+"/"
+    if(setting != None):
+        path += setting+"/"
     if not os.path.exists(path):
         os.makedirs(path)
     return path
@@ -46,35 +48,65 @@ def saveTxt(path, txt):
 def drawResultCompare(result, real, tag, savePath=None):
 
     try:
+        # 设置中文字体及解决负号显示问题
         plt.rcParams['font.sans-serif'] = ['SimHei']
         plt.rcParams['axes.unicode_minus'] = False
-        # 绘制真实值和预测值对比图
-        plt.figure(figsize=(12, 8))
-        plt.plot(real, label='真实值')
-        plt.plot(result, label=f'预测值')
-        plt.xticks(fontsize=15)
-        plt.yticks(fontsize=15)
-        plt.legend(loc='best', fontsize=15)
-        plt.ylabel('负荷值', fontsize=15)
-        plt.xlabel('采样点', fontsize=15)
-        plt.title(f"{tag}", fontsize=15)
-        plt.show()
-        if savePath != None:
-            plt.savefig(f'{savePath}.png')
-            print(f"结果对比图保存到{savePath}")
+
+        if len(real.shape) == 1:  # 判断数据是否为一维
+            # 绘制真实值和预测值对比图（一维情况）
+            plt.figure(figsize=(12, 8))
+            plt.plot(real, label='真实值')
+            plt.plot(result, label='预测值')
+            plt.xticks(fontsize=15)
+            plt.yticks(fontsize=15)
+            plt.legend(loc='best', fontsize=15)
+            plt.ylabel('负荷值', fontsize=15)
+            plt.xlabel('采样点', fontsize=15)
+            plt.title(f"{tag}", fontsize=15)
+            plt.show()
+            if savePath is not None:
+                plt.savefig(f'{savePath}.png')
+                print(f"结果对比图保存到{savePath}")
+        elif len(real.shape) == 2:  # 判断数据是否为二维
+            n_dimensions = real.shape[1]  # 获取维度数量
+            for dim in range(n_dimensions):
+                # 为每个维度创建一个新的图（二维情况）
+                plt.figure(figsize=(12, 8))
+                plt.plot([r[dim] for r in real], label='真实值')
+                plt.plot([r[dim] for r in result], label='预测值')
+                plt.xticks(fontsize=15)
+                plt.yticks(fontsize=15)
+                plt.legend(loc='best', fontsize=15)
+                plt.ylabel(f'负荷值（维度 {dim + 1}）', fontsize=15)
+                plt.xlabel('采样点', fontsize=15)
+                plt.title(f"{tag} - 维度 {dim + 1}", fontsize=15)
+                plt.show()
+                if savePath is not None:
+                    plt.savefig(f'{savePath}_{dim}.png')
+                    print(f"结果对比图保存到{savePath}_{dim}.png")
+        else:
+            print("数据维度不符合预期，请检查数据格式。")
     except Exception as e:
         print("绘制结果图失败")
         print(e)
 
 
-def saveResultCompare(predicted_values, real, tag="结果数据"):
+def saveResultCompare(predicted_values, real, basePath):
     # 将两个数组转换为DataFrame，分别作为两列
-    data = pd.DataFrame({
-        '真实值': real,
-        '预测值': predicted_values
-    })
+    np.save(f'{basePath}predicted.npy', predicted_values)
+    np.save(f'{basePath}real.npy', real)
+    print("npy 文件已保存")
+    columns_true = [f'真实值_时间步{i}' for i in range(real.shape[1])]
+    columns_pred = [f'预测值_时间步{i}' for i in range(predicted_values.shape[1])]
+    columns = columns_true + columns_pred
+    data = np.concatenate((real, predicted_values), axis = 1)
+    df = pd.DataFrame(data, columns = columns)
+    # data = pd.DataFrame({
+    #     '真实值': real,
+    #     '预测值': predicted_values
+    # })
     # 将DataFrame保存为csv文件
-    data.to_csv(f'{getBaseOutputPath()}model_result/{tag}.csv', index=False, encoding='utf-8')
+    df.to_csv(f'{basePath}预测结果.csv', index=False, encoding='utf-8')
     print("CSV 文件已保存")
 
 
