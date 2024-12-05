@@ -136,7 +136,7 @@ def completeMSE(real, predicted):
     MSPE = np.mean(np.square((prediction - real) / real))
     # print(f'\n{model_name} 模型评价指标:')
     print(f'  {"R2:":<10}{R2:<20}  {"MSE:":<10}{MSE:<20}')
-    print(f'  {"R2:":<10}{MAE:<20}  {"RMSE:":<10}{RMSE:<20}')
+    print(f'  {"MAE:":<10}{MAE:<20}  {"RMSE:":<10}{RMSE:<20}')
     print(f'  {"MAPE:":<10}{MAPE:<20}  {"MSPE:":<10}{MSPE:<20}')
     # print(f',RSE: {RSE(prediction,real):.4f},CORR: {CORR(prediction,real):.4f}')
 

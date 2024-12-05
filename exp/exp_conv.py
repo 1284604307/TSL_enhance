@@ -159,8 +159,8 @@ class Exp_Conv(Exp_Basic):
 
                 preds.append(pred)
                 trues.append(true)
-        # preds = np.concatenate(preds, 0)
-        # trues = np.concatenate(trues, 0)
+        preds = np.concatenate(preds, 0)
+        trues = np.concatenate(trues, 0)
 
 
         print('test shape:', preds.shape, trues.shape)
