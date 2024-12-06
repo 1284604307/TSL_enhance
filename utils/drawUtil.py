@@ -69,7 +69,9 @@ def drawResultCompare(result, real, tag, savePath=None):
                 print(f"结果对比图保存到{savePath}")
         elif len(real.shape) == 2:  # 判断数据是否为二维
             n_dimensions = real.shape[1]  # 获取维度数量
-            for dim in range(n_dimensions):
+            # todo 只保存第一个维度结果，避免出图太多
+            # for dim in range(n_dimensions):
+            for dim in range(1):
                 # 为每个维度创建一个新的图（二维情况）
                 plt.figure(figsize=(12, 8))
                 plt.plot([r[dim] for r in real], label='真实值')

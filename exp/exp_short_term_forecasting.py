@@ -164,15 +164,9 @@ class Exp_Short_Term_Forecast(Exp_Basic):
             print('loading model')
             self.model.load_state_dict(torch.load(os.path.join('./checkpoints/' + setting, 'checkpoint.pth')))
 
-        folder_path = './test_results/' + setting + '/'
-        if not os.path.exists(folder_path):
-            os.makedirs(folder_path)
-
         preds = []
         trues = []
-        folder_path = './test_results/' + setting + '/'
-        if not os.path.exists(folder_path):
-            os.makedirs(folder_path)
+        folder_path = drawUtil.getBaseOutputPath(self.args, setting)
 
         self.model.eval()
         with torch.no_grad():
@@ -239,9 +233,10 @@ class Exp_Short_Term_Forecast(Exp_Basic):
             trues = trues[:,-1]
             print(f"处理结果{preds.shape}")
 
-        drawUtil.drawResultCompare(result=preds,real=trues,tag=self.args.model)
-        # drawUtil.completeMSE(predicted=preds,real=trues)
-        drawUtil.metricAndSave(preds=preds,trues=trues,folder_path=drawUtil.getBaseOutputPath(self.args,setting))
+        drawUtil.drawResultCompare(result=preds,real=trues,tag=self.args.model,
+                                   savePath=folder_path+'归一化预测对比',)
+        drawUtil.completeMSE(predicted=preds,real=trues)
+        # drawUtil.metricAndSave(preds=preds,trues=trues,folder_path=drawUtil.getBaseOutputPath(self.args,setting))
 
         # if(len(preds.shape)==2):
         #     for i in range(preds.shape[1]):
@@ -249,12 +244,9 @@ class Exp_Short_Term_Forecast(Exp_Basic):
         preds= test_data.labelScaler.inverse_transform(np.array(preds))
         trues= test_data.labelScaler.inverse_transform(np.array(trues))
 
-        drawUtil.drawResultCompare(result=preds,real=trues,tag=self.args.model)
-        # drawUtil.completeMSE(predicted=preds,real=trues)
+        drawUtil.drawResultCompare(result=preds,real=trues,tag=self.args.model,
+                                   savePath=folder_path+'反归一化后预测对比',)
         drawUtil.metricAndSave(preds=preds,trues=trues,folder_path=drawUtil.getBaseOutputPath(self.args,setting))
-
-        # np.save(folder_path + 'metrics.npy', np.array([mae, mse, rmse, mape, mspe]))
-        # np.save(folder_path + 'pred.npy', preds)
-        # np.save(folder_path + 'true.npy', trues)
+        drawUtil.saveResultCompare(preds, trues,drawUtil.getBaseOutputPath(self.args,setting))
 
         return

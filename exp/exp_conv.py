@@ -169,17 +169,15 @@ class Exp_Conv(Exp_Basic):
 
         # result save
         folder_path = drawUtil.getBaseOutputPath(self.args, setting)
-        if not os.path.exists(folder_path):
-            os.makedirs(folder_path)
 
         drawUtil.drawResultCompare(
             result=preds,
             real=trues,
             tag=self.args.model,
-            savePath=folder_path+'归一化预测对比.png',
+            savePath=folder_path+'归一化预测对比',
         )
-        # drawUtil.completeMSE(preds, trues)
-        drawUtil.metricAndSave(preds, trues, folder_path)
+        drawUtil.completeMSE(preds, trues)
+        # drawUtil.metricAndSave(preds, trues, folder_path)
         drawUtil.saveResultCompare(preds, trues,drawUtil.getBaseOutputPath(self.args,setting))
 
 
@@ -190,8 +188,7 @@ class Exp_Conv(Exp_Basic):
         trues= test_data.labelScaler.inverse_transform(np.array(trues))
 
         drawUtil.drawResultCompare(result=preds,real=trues,tag=self.args.model,
-                                   savePath=folder_path+'归一化预测对比.png',)
-        # drawUtil.completeMSE(predicted=preds,real=trues)
+                                   savePath=folder_path+'反归一化后预测对比',)
         drawUtil.metricAndSave(preds=preds,trues=trues,folder_path=drawUtil.getBaseOutputPath(self.args,setting))
         drawUtil.saveResultCompare(preds, trues,drawUtil.getBaseOutputPath(self.args,setting))
 

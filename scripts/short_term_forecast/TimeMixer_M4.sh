@@ -20,8 +20,8 @@ python -u run.py \
   --model $model_name \
   --data m4 \
   --features M \
-  --e_layers $e_layers \
-  --d_layers 1 \
+  --e_layers 4
+  --d_layers 1
   --factor 3 \
   --enc_in 1 \
   --dec_in 1 \
@@ -34,9 +34,9 @@ python -u run.py \
   --learning_rate $learning_rate \
   --train_epochs 50 \
   --patience 20 \
-  --down_sampling_layers $down_sampling_layers \
-  --down_sampling_method avg \
-  --down_sampling_window $down_sampling_window \
+  --down_sampling_layers 1
+  --down_sampling_method avg
+  --down_sampling_window 2
   --loss 'SMAPE'
 
 python -u run.py \
@@ -48,7 +48,7 @@ python -u run.py \
   --model $model_name \
   --data m4 \
   --features M \
-  --e_layers $e_layers \
+  --e_layers 4 \
   --d_layers 1 \
   --factor 3 \
   --enc_in 1 \
@@ -76,7 +76,7 @@ python -u run.py \
   --model $model_name \
   --data m4 \
   --features M \
-  --e_layers $e_layers \
+  --e_layers 4 \
   --d_layers 1 \
   --factor 3 \
   --enc_in 1 \
@@ -104,7 +104,7 @@ python -u run.py \
   --model $model_name \
   --data m4 \
   --features M \
-  --e_layers $e_layers \
+  --e_layers 4 \
   --d_layers 1 \
   --factor 3 \
   --enc_in 1 \
@@ -132,7 +132,7 @@ python -u run.py \
   --model $model_name \
   --data m4 \
   --features M \
-  --e_layers $e_layers \
+  --e_layers 4 \
   --d_layers 1 \
   --factor 3 \
   --enc_in 1 \
@@ -160,7 +160,7 @@ python -u run.py \
   --model $model_name \
   --data m4 \
   --features M \
-  --e_layers $e_layers \
+  --e_layers 4 \
   --d_layers 1 \
   --factor 3 \
   --enc_in 1 \
