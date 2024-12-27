@@ -9,7 +9,7 @@ root_path=D:\深度学习\代码\A数据集\电力数据集
 data_path=比利时20221201_20241201_Federal_utc区域.csv
 date_column=Datetime
 
-python -u run.py  \
+python -u run.py \
 --task_name $task_name \
 --loss MSE \
 --scale 1 \
@@ -30,8 +30,8 @@ python -u run.py  \
 --des Exp \
 --learning_rate 0.001 \
 --date_column $date_column \
---target $target \
---ignore_columns $ignore_columns \
+--target "$target" \
+--ignore_columns "$ignore_columns" \
 --result_rpath $result_rpath \
 --data_path $data_path \
 --seq_len 96 \
@@ -40,4 +40,3 @@ python -u run.py  \
 --num_workers 1 \
 --train_epochs 1 \
 --num_channels 16,16,16
-
