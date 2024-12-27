@@ -7,6 +7,7 @@ from models import Autoformer, Transformer, TimesNet, Nonstationary_Transformer,
     Informer, LightTS, Reformer, ETSformer, Pyraformer, PatchTST, MICN, Crossformer, FiLM, iTransformer, \
     Koopa, TiDE, FreTS, TimeMixer, TSMixer, SegRNN, MambaSimple, TemporalFusionTransformer, SCINet, PAttn, TimeXer, TCN
 from models.model2024 import TCN_effKan
+from models.model2024 import TCN_fftKan
 
 import importlib
 import os
@@ -19,6 +20,7 @@ class Exp_Basic(object):
             'TimesNet': TimesNet,
             'TCN': TCN,
             'TCN-effKAN': TCN_effKan,
+            'TCN-fttKAN': TCN_fftKan,
             'Autoformer': Autoformer,
             'Transformer': Transformer,
             'Nonstationary_Transformer': Nonstationary_Transformer,

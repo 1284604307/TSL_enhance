@@ -1,6 +1,9 @@
 import torch as th
 import numpy as np
 
+from models.model2024.fftKAN import NaiveFourierKANLayer
+
+
 #This is inspired by Kolmogorov-Arnold Networks but using 1d fourier coefficients instead of splines coefficients
 #It should be easier to optimize as fourier are more dense than spline (global vs local)
 #Once convergence is reached you can replace the 1d function with spline approximation for faster evaluation giving almost the same result
