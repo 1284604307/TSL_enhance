@@ -5,10 +5,9 @@ model_name=TCN-fttKAN
 ignore_columns="Decremental bid Indicator,Region,Grid connection type,Resolution code,Offshore/onshore"
 target="Measured & Upscaled"
 result_rpath=/kaggle/working
-root_path=D:\深度学习\代码\A数据集\电力数据集
-data_path=比利时20221201_20241201_Federal_utc区域.csv
+root_path=/kaggle/input/all-data
+data_path=20221201_20241201_Federal.csv
 date_column=Datetime
-
 python -u run.py \
 --task_name $task_name \
 --loss MSE \
