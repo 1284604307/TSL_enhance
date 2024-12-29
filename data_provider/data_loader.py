@@ -1065,8 +1065,10 @@ class Dataset_former(Dataset):
         df_raw = readFileFromPath(os.path.join(self.root_path,
                                                self.data_path),date_column=self.args.date_column,ignore_columns=self.args.ignore_columns)
 
-        border1s = [0, 12 * 30 * 24 * 4 - self.seq_len, 12 * 30 * 24 * 4 + 4 * 30 * 24 * 4 - self.seq_len]
-        border2s = [12 * 30 * 24 * 4, 12 * 30 * 24 * 4 + 4 * 30 * 24 * 4, 12 * 30 * 24 * 4 + 8 * 30 * 24 * 4]
+        # border1s = [0, 12 * 30 * 24 * 4 - self.seq_len, 12 * 30 * 24 * 4 + 4 * 30 * 24 * 4 - self.seq_len]
+        # border2s = [12 * 30 * 24 * 4, 12 * 30 * 24 * 4 + 4 * 30 * 24 * 4, 12 * 30 * 24 * 4 + 8 * 30 * 24 * 4]
+        border1s = [0, int(len(df_raw)*0.8) - self.seq_len, int(len(df_raw)*0.9) - self.seq_len]
+        border2s = [int(len(df_raw)*0.8), int(len(df_raw)*0.9), len(df_raw)]
         border1 = border1s[self.set_type]
         border2 = border2s[self.set_type]
 
