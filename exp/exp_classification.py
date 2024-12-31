@@ -16,6 +16,8 @@ warnings.filterwarnings('ignore')
 class Exp_Classification(Exp_Basic):
     def __init__(self, args):
         super(Exp_Classification, self).__init__(args)
+        self.model_optim = self._select_optimizer()
+        self.criterion = self._select_criterion()
 
     def _build_model(self):
         # model input depends on data
@@ -140,6 +142,30 @@ class Exp_Classification(Exp_Basic):
         self.model.load_state_dict(torch.load(best_model_path))
 
         return self.model
+
+    def trainOne(self, train_loader):
+        model_optim = self.model_optim
+        criterion = self.criterion
+        train_loss = []
+        iter_count = 0
+        for i, (batch_x, label, padding_mask) in enumerate(train_loader):
+            iter_count += 1
+            model_optim.zero_grad()
+
+            batch_x = batch_x.float().to(self.device)
+            padding_mask = padding_mask.float().to(self.device)
+            label = label.to(self.device)
+
+            outputs = self.model(batch_x, padding_mask, None, None)
+            loss = criterion(outputs, label.long().squeeze(-1))
+            train_loss.append(loss.item())
+            loss.backward()
+
+            nn.utils.clip_grad_norm_(self.model.parameters(), max_norm=4.0)
+            model_optim.step()
+
+        train_loss = np.average(train_loss)
+        return train_loss
 
     def test(self, setting, test=0):
         test_data, test_loader = self._get_data(flag='TEST')

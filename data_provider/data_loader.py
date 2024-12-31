@@ -295,8 +295,8 @@ class Dataset_Custom(Dataset):
         cols.remove(self.target)
         cols.remove('date')
         df_raw = df_raw[['date'] + cols + [self.target]]
-        num_train = int(len(df_raw) * 0.7)
-        num_test = int(len(df_raw) * 0.2)
+        num_train = int(len(df_raw) * self.args.train_rate)
+        num_test = int(len(df_raw) * self.args.vail_rate)
         num_vali = len(df_raw) - num_train - num_test
         border1s = [0, num_train - self.seq_len, len(df_raw) - num_test - self.seq_len]
         border2s = [num_train, num_train + num_vali, len(df_raw)]
@@ -435,6 +435,7 @@ class Dataset_M4(Dataset):
 
 class PSMSegLoader(Dataset):
     def __init__(self, args, root_path, win_size, step=1, flag="train"):
+        self.args = args
         self.flag = flag
         self.step = step
         self.win_size = win_size
@@ -451,7 +452,7 @@ class PSMSegLoader(Dataset):
         self.test = self.scaler.transform(test_data)
         self.train = data
         data_len = len(self.train)
-        self.val = self.train[(int)(data_len * 0.8):]
+        self.val = self.train[(int)(data_len * self.args.train_rate):]
         self.test_labels = readFileFromPath(os.path.join(root_path, 'test_label.csv'),date_column=self.args.date_column,ignore_columns=self.args.ignore_columns).values[:, 1:]
         print("test:", self.test.shape)
         print("train:", self.train.shape)
@@ -496,7 +497,7 @@ class MSLSegLoader(Dataset):
         self.test = self.scaler.transform(test_data)
         self.train = data
         data_len = len(self.train)
-        self.val = self.train[(int)(data_len * 0.8):]
+        self.val = self.train[(int)(data_len * self.args.train_rate):]
         self.test_labels = np.load(os.path.join(root_path, "MSL_test_label.npy"))
         print("test:", self.test.shape)
         print("train:", self.train.shape)
@@ -541,7 +542,7 @@ class SMAPSegLoader(Dataset):
         self.test = self.scaler.transform(test_data)
         self.train = data
         data_len = len(self.train)
-        self.val = self.train[(int)(data_len * 0.8):]
+        self.val = self.train[(int)(data_len * self.args.train_rate):]
         self.test_labels = np.load(os.path.join(root_path, "SMAP_test_label.npy"))
         print("test:", self.test.shape)
         print("train:", self.train.shape)
@@ -587,7 +588,7 @@ class SMDSegLoader(Dataset):
         self.test = self.scaler.transform(test_data)
         self.train = data
         data_len = len(self.train)
-        self.val = self.train[(int)(data_len * 0.8):]
+        self.val = self.train[(int)(data_len * self.args.train_rate):]
         self.test_labels = np.load(os.path.join(root_path, "SMD_test_label.npy"))
 
     def __len__(self):
@@ -637,7 +638,7 @@ class SWATSegLoader(Dataset):
         self.train = train_data
         self.test = test_data
         data_len = len(self.train)
-        self.val = self.train[(int)(data_len * 0.8):]
+        self.val = self.train[(int)(data_len * self.args.train_rate):]
         self.test_labels = labels
         print("test:", self.test.shape)
         print("train:", self.train.shape)
@@ -849,21 +850,19 @@ class Dataset_Conv_ETTh1(Dataset):
         df_date = df_raw[['date']]
         # df_raw = df_raw[cols + [self.target]]
         df_raw = df_raw[cols]
-        num_train = int(len(df_raw) * 0.7)
-        num_test = int(len(df_raw) * 0.2)
+        num_train = int(len(df_raw) * self.args.train_rate)
+        num_test = int(len(df_raw) * self.args.vail_rate)
         num_vali = len(df_raw) - num_train - num_test
         border1s = [0, num_train-self.seq_len, num_train+num_vali-self.seq_len]
         border2s = [num_train, num_train + num_vali, len(df_raw)-self.pred_len]
         border1 = border1s[self.set_type]
         border2 = border2s[self.set_type]
 
-
+        cols_data = df_raw.columns
         if self.features == 'M':
-            cols_data = df_raw.columns[1:]
-            df_data = df_raw[cols_data]
+            df_data = df_raw.drop('date', axis=1, inplace=False)
         elif self.features == 'MS':
-            cols_data = df_raw.columns[1:]
-            df_data = df_raw[cols_data]
+            df_data = df_raw.drop('date', axis=1, inplace=False)
         elif self.features == 'S':
             df_data = df_raw[[self.target]]
 
@@ -958,7 +957,7 @@ class Dataset_Conv_OTT(Dataset):
         df_date = df_raw[['date']]
         # df_raw = df_raw[cols + [self.target]]
         df_raw = df_raw[cols]
-        num_train = int(len(df_raw) * 0.8)
+        num_train = int(len(df_raw) * self.args.train_rate)
         border1s = [0, num_train-self.seq_len]
         border2s = [num_train, len(df_raw)-self.pred_len]
         border1 = border1s[self.set_type]
@@ -1067,14 +1066,14 @@ class Dataset_former(Dataset):
 
         # border1s = [0, 12 * 30 * 24 * 4 - self.seq_len, 12 * 30 * 24 * 4 + 4 * 30 * 24 * 4 - self.seq_len]
         # border2s = [12 * 30 * 24 * 4, 12 * 30 * 24 * 4 + 4 * 30 * 24 * 4, 12 * 30 * 24 * 4 + 8 * 30 * 24 * 4]
-        border1s = [0, int(len(df_raw)*0.8) - self.seq_len, int(len(df_raw)*0.9) - self.seq_len]
-        border2s = [int(len(df_raw)*0.8), int(len(df_raw)*0.9), len(df_raw)]
+        border1s = [0, int(len(df_raw)*self.args.train_rate) - self.seq_len, int(len(df_raw)*(self.args.train_rate+self.args.vail_rate)) - self.seq_len]
+        border2s = [int(len(df_raw)*self.args.train_rate), int(len(df_raw)*(self.args.train_rate+self.args.vail_rate)), len(df_raw)]
         border1 = border1s[self.set_type]
         border2 = border2s[self.set_type]
 
+        cols_data = df_raw.columns
         if self.features == 'M' or self.features == 'MS':
-            cols_data = df_raw.columns[1:]
-            df_data = df_raw[cols_data]
+            df_data = df_raw.drop('date', axis=1, inplace=False)
         elif self.features == 'S':
             df_data = df_raw[[self.target]]
 
@@ -1082,6 +1081,8 @@ class Dataset_former(Dataset):
         self.scaler.fit(train_data.values)
         self.labelScaler.fit(train_data.values[:,train_data.columns.get_loc(self.args.target),np.newaxis])
         data = self.scaler.transform(df_data.values)
+
+
 
         df_stamp = df_raw[['date']][border1:border2]
         df_stamp['date'] = pd.to_datetime(df_stamp.date)

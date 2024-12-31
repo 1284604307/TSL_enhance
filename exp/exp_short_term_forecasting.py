@@ -22,7 +22,8 @@ warnings.filterwarnings('ignore')
 class Exp_Short_Term_Forecast(Exp_Basic):
     def __init__(self, args):
         super(Exp_Short_Term_Forecast, self).__init__(args)
-
+        self.criterion = self._select_criterion()
+        self.model_optim = self._select_optimizer()
     def _build_model(self):
         if self.args.data == 'm4':
             self.args.pred_len = M4Meta.horizons_map[self.args.seasonal_patterns]  # Up to M4 config
@@ -129,7 +130,7 @@ class Exp_Short_Term_Forecast(Exp_Basic):
 
         return self.model
 
-    def vali(self,train_loader, vali_loader, criterion):
+    def vali(self,train_loader, vali_loader):
         total_loss = []
         self.model.eval()
         with torch.no_grad():
@@ -151,7 +152,7 @@ class Exp_Short_Term_Forecast(Exp_Basic):
 
                 batch_y_mark = batch_y_mark[:, -self.args.pred_len:, f_dim:].to(self.device)
                 # loss_value = criterion(batch_x, self.args.frequency_map, outputs, batch_y, batch_y_mark)
-                loss_value = criterion(outputs,batch_y)
+                loss_value = self.criterion(outputs,batch_y)
                 # loss_sharpness = mse((outputs[:, 1:, :] - outputs[:, :-1, :]), (batch_y[:, 1:, :] - batch_y[:, :-1, :]))
                 loss = loss_value  # + loss_sharpness * 1e-5
                 total_loss.append(loss.item())
@@ -250,3 +251,45 @@ class Exp_Short_Term_Forecast(Exp_Basic):
         drawUtil.saveResultCompare(preds, trues,drawUtil.getBaseOutputPath(self.args,setting))
 
         return
+
+
+    def trainOne(self, train_loader):
+        model_optim = self.model_optim
+        criterion = self.criterion
+        train_loss = []
+        iter_count = 0
+        for i, (batch_x, batch_y, batch_x_mark, batch_y_mark) in enumerate(train_loader):
+            iter_count += 1
+            model_optim.zero_grad()
+            batch_x = batch_x.float().to(self.device)
+
+            batch_y = batch_y.float().to(self.device)
+            batch_y_mark = batch_y_mark.float().to(self.device)
+
+            # decoder input
+            dec_inp = torch.zeros_like(batch_y[:, -self.args.pred_len:, :]).float()
+            dec_inp = torch.cat([batch_y[:, :self.args.label_len, :], dec_inp], dim=1).float().to(self.device)
+
+            outputs = self.model(batch_x, None, dec_inp, None)
+
+            f_dim = -1 if self.args.features == 'MS' else 0
+            outputs = outputs[:, -self.args.pred_len:, f_dim:]
+            batch_y = batch_y[:, -self.args.pred_len:, f_dim:].to(self.device)
+
+            batch_y_mark = batch_y_mark[:, -self.args.pred_len:, f_dim:].to(self.device)
+            # loss_value = criterion(batch_x, self.args.frequency_map, outputs, batch_y, batch_y_mark)
+            loss_value = criterion(outputs,batch_y)
+            # loss_sharpness = mse((outputs[:, 1:, :] - outputs[:, :-1, :]), (batch_y[:, 1:, :] - batch_y[:, :-1, :]))
+            loss = loss_value  # + loss_sharpness * 1e-5
+            train_loss.append(loss.item())
+            # if (i + 1) % 100 == 0:
+            #     print("\titers: {0}, epoch: {1} | loss: {2:.7f}".format(i + 1, epoch + 1, loss.item()))
+            #     speed = (time.time() - time_now) / iter_count
+            #     left_time = speed * ((self.args.train_epochs - epoch) * train_steps - i)
+            #     print('\tspeed: {:.4f}s/iter; left time: {:.4f}s'.format(speed, left_time/1000))
+            #     iter_count = 0
+            #     time_now = time.time()
+            loss.backward()
+            model_optim.step()
+        train_loss = np.average(train_loss)
+        return train_loss

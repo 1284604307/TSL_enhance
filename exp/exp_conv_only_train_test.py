@@ -21,6 +21,8 @@ warnings.filterwarnings('ignore')
 class Exp_Conv_OTT(Exp_Basic):
     def __init__(self, args):
         super(Exp_Conv_OTT, self).__init__(args)
+        self.criterion = self._select_criterion()
+        self.model_optim = self._select_optimizer()
 
     def _build_model(self):
         model = self.model_dict[self.args.model].Model(self.args).float()
@@ -42,7 +44,7 @@ class Exp_Conv_OTT(Exp_Basic):
         return criterion
 
 
-    def vali(self, vali_data, vali_loader, criterion):
+    def vali(self, vali_data, vali_loader):
         total_loss = []
         self.model.eval()
         with torch.no_grad():
@@ -57,7 +59,7 @@ class Exp_Conv_OTT(Exp_Basic):
                     # 补充一层，使模型输出shape = y shape
                     batch_y = batch_y.unsqueeze(1)
                 batch_y = batch_y.permute(0, 2, 1)
-                loss = criterion(outputs, batch_y)
+                loss = self.criterion(outputs, batch_y)
                 total_loss.append(loss.detach().cpu().numpy())
         total_loss = np.average(total_loss)
         self.model.train()
@@ -94,7 +96,7 @@ class Exp_Conv_OTT(Exp_Basic):
                     # 补充一层，使模型输出shape = y shape
                     batch_y = batch_y.unsqueeze(1)
                 batch_y = batch_y.float().to(self.device)
-                loss = criterion(outputs, batch_y)
+                loss = self.criterion(outputs, batch_y)
                 train_loss.append(loss.item())
 
                 loss.backward()

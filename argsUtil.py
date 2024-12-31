@@ -48,6 +48,9 @@ def getArgsParser():
     # inputation task
     parser.add_argument('--mask_rate', type=float, default=0.25, help='mask ratio')
 
+    parser.add_argument('--train_rate', type=float, default=0.8, required=False, help='训练集占比')
+    parser.add_argument('--vail_rate', type=float, default=0.1, required=False, help='测试集占比')
+
     # anomaly detection task
     parser.add_argument('--anomaly_ratio', type=float, default=0.25, help='prior anomaly ratio (%)')
 
@@ -164,6 +167,7 @@ def processAndPrintArgs(args):
         args.model_id =f'[{ args.data_path.replace(" ", "-").split(".")[0]}]_{args.seq_len}_{args.pred_len}'
 
     print(f"输入特征数量：{args.enc_in},输出特征数量:{args.c_out}，输出时间步:{args.pred_len}")
+    print(f"训练集占比：{args.train_rate*100}%,验证集占比:{args.vail_rate*100}%，测试集占比:{(1-args.train_rate-args.vail_rate)*100}%")
     print(f"卷积层变：{args.num_channels}")
     print(f"采样时间频率：{args.frequency}")
     frequecy = args.frequency.split('_')

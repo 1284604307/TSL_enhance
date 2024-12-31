@@ -19,6 +19,8 @@ warnings.filterwarnings('ignore')
 class Exp_Conv(Exp_Basic):
     def __init__(self, args):
         super(Exp_Conv, self).__init__(args)
+        self.model_optim = self._select_optimizer()
+        self.criterion = self._select_criterion()
 
     def _build_model(self):
         model = self.model_dict[self.args.model].Model(self.args).float()
@@ -39,7 +41,7 @@ class Exp_Conv(Exp_Basic):
         criterion = nn.MSELoss()
         return criterion
 
-    def vali(self, vali_data, vali_loader, criterion):
+    def vali(self, vali_data, vali_loader):
         total_loss = []
         self.model.eval()
         with torch.no_grad():
@@ -49,17 +51,38 @@ class Exp_Conv(Exp_Basic):
                 batch_y = batch_y.float().to(self.device)
                 # imputation
                 outputs = self.model(batch_x)
-                if len(batch_y.shape)<len(outputs.shape):
+                if len(batch_y.shape) < len(outputs.shape):
                     # 补充一层，使模型输出shape = y shape
                     batch_y = batch_y.unsqueeze(1)
                 # todo 多对多预测，调换预测的通道次序
                 # if(self.args.features.endswith("M")):
                 #     batch_y = batch_y.permute(0, 2, 1)
-                loss = criterion(outputs, batch_y)
+                loss = self.criterion(outputs, batch_y)
                 total_loss.append(loss.detach().cpu().numpy())
         total_loss = np.average(total_loss)
         self.model.train()
         return total_loss
+
+    def trainOne(self, train_loader):
+        self.model.train()
+        iter_count = 0
+        train_loss = 0
+        for i, (batch_x, batch_y) in enumerate(train_loader):
+            iter_count += 1
+            self.model_optim.zero_grad()
+            # 置换2，3，todo 为了按单时间步特征通道卷积训练
+            # batch_x = batch_x.permute(0, 2, 1)
+
+            batch_x = batch_x.float().to(self.device)
+            outputs = self.model(batch_x)
+
+            batch_y = batch_y.float().to(self.device)
+
+            loss = self.criterion(outputs, batch_y)
+            train_loss = loss.item()
+            loss.backward()
+            self.model_optim.step()
+        return train_loss
 
     def train(self, setting):
         train_data, train_loader = self._get_data(flag='train')
@@ -102,7 +125,7 @@ class Exp_Conv(Exp_Basic):
                     print("\titers: {0}, epoch: {1} | loss: {2:.7f}".format(i + 1, epoch + 1, loss.item()))
                     speed = (time.time() - time_now) / iter_count
                     left_time = speed * ((self.args.train_epochs - epoch) * train_steps - i)
-                    print('\tspeed: {:.4f}s/iter; left time: {:.4f}s'.format(speed, left_time/1000))
+                    print('\tspeed: {:.4f}s/iter; left time: {:.4f}s'.format(speed, left_time / 1000))
                     iter_count = 0
                     time_now = time.time()
 
@@ -112,8 +135,8 @@ class Exp_Conv(Exp_Basic):
             print("Epoch: {} cost time: {}".format(epoch + 1, time.time() - epoch_time))
             print("计算vali_loss，test_loss...")
             train_loss = np.average(train_loss)
-            vali_loss = self.vali(vali_data, vali_loader, criterion)
-            test_loss = self.vali(test_data, test_loader, criterion)
+            vali_loss = self.vali(vali_data, vali_loader)
+            test_loss = self.vali(test_data, test_loader)
 
             print("Epoch: {0}, Steps: {1} | Train Loss: {2:.7f} Vali Loss: {3:.7f} Test Loss: {4:.7f}".format(
                 epoch + 1, train_steps, train_loss, vali_loss, test_loss))
@@ -136,7 +159,7 @@ class Exp_Conv(Exp_Basic):
 
         preds = []
         trues = []
-        folder_path = drawUtil.getBaseOutputPath(self.args)+'test_results/' + setting + '/'
+        folder_path = drawUtil.getBaseOutputPath(self.args) + 'test_results/' + setting + '/'
         if not os.path.exists(folder_path):
             os.makedirs(folder_path)
 
@@ -148,7 +171,7 @@ class Exp_Conv(Exp_Basic):
                 # imputation
                 outputs = self.model(batch_x)
                 outputs = outputs.detach().cpu().numpy()
-                if len(batch_y.shape)<len(outputs.shape):
+                if len(batch_y.shape) < len(outputs.shape):
                     # 补充一层，使模型输出shape = y shape
                     batch_y = batch_y.unsqueeze(1)
                 # # todo 多对多预测，调换预测的通道次序
@@ -162,7 +185,6 @@ class Exp_Conv(Exp_Basic):
         preds = np.concatenate(preds, 0)
         trues = np.concatenate(trues, 0)
 
-
         print('test shape:', preds.shape, trues.shape)
         preds = np.reshape(preds, (preds.shape[0], -1))
         trues = np.reshape(trues, (trues.shape[0], -1))
@@ -174,23 +196,21 @@ class Exp_Conv(Exp_Basic):
             result=preds,
             real=trues,
             tag=self.args.model,
-            savePath=folder_path+'归一化预测对比',
+            savePath=folder_path + '归一化预测对比',
         )
         drawUtil.completeMSE(preds, trues)
         # drawUtil.metricAndSave(preds, trues, folder_path)
-        drawUtil.saveResultCompare(preds, trues,drawUtil.getBaseOutputPath(self.args,setting))
-
+        drawUtil.saveResultCompare(preds, trues, drawUtil.getBaseOutputPath(self.args, setting))
 
         print("\n数据反归一化处理...")
         # if(len(preds.shape)==2):
         #     for i in range(preds.shape[1]):
-        preds= test_data.labelScaler.inverse_transform(np.array(preds))
-        trues= test_data.labelScaler.inverse_transform(np.array(trues))
+        preds = test_data.labelScaler.inverse_transform(np.array(preds))
+        trues = test_data.labelScaler.inverse_transform(np.array(trues))
 
-        drawUtil.drawResultCompare(result=preds,real=trues,tag=self.args.model,
-                                   savePath=folder_path+'反归一化后预测对比',)
-        drawUtil.metricAndSave(preds=preds,trues=trues,folder_path=drawUtil.getBaseOutputPath(self.args,setting))
-        drawUtil.saveResultCompare(preds, trues,drawUtil.getBaseOutputPath(self.args,setting))
-
+        drawUtil.drawResultCompare(result=preds, real=trues, tag=self.args.model,
+                                   savePath=folder_path + '反归一化后预测对比', )
+        drawUtil.metricAndSave(preds=preds, trues=trues, folder_path=drawUtil.getBaseOutputPath(self.args, setting))
+        drawUtil.saveResultCompare(preds, trues, drawUtil.getBaseOutputPath(self.args, setting))
 
         return
