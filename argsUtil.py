@@ -146,7 +146,7 @@ def getArgsParser():
     parser.add_argument('--discsdtw', default=False, action="store_true",
                         help="Discrimitive shapeDTW warp preset augmentation")
     parser.add_argument('--extra_tag', type=str, default="", help="Anything extra")
-    parser.add_argument('--save_model', type=str, default=False, help="")
+    parser.add_argument('--save_model', type=str, default=True, help="")
     parser.add_argument('--frequency', type=str, default="1_h",
                         help="采用时间频率(数量_单位)单位包括：天d 时h 分钟m 秒s")
 

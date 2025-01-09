@@ -1,6 +1,7 @@
 import os
 import time
 
+import netron
 import torch
 import random
 import numpy as np
@@ -23,13 +24,14 @@ if __name__ == '__main__':
 
     beijing = timezone(timedelta(hours=8))
     start_time = datetime.now().astimezone(beijing)
-    print(f"训练开始时间：{start_time}")
+    print(f"开始时间：{start_time}")
 
     if args.is_training:
         for ii in range(args.itr):
+            setting = argsUtil.getSettingsStr(args,ii)
+            args.setting = setting
             # setting record of experiments
             exp = Exp(args)  # set experiments
-            setting = argsUtil.getSettingsStr(args,ii)
             print(f"保存配置信息 -> {setting}")
             drawUtil.saveTxt(drawUtil.getBaseOutputPath(args)+'results/' + setting + f'/参数配置_itr{ii}.txt', argsUtil.args2txt(args))
 
@@ -45,20 +47,18 @@ if __name__ == '__main__':
             time_now = time.time()
             early_stopping = EarlyStopping(patience=args.patience, verbose=True)
 
-            train_losses = []
             for epoch in range(args.train_epochs):
                 epoch_time = time.time()
                 # todo 调用exp 训练
                 train_loss = exp.trainOne(train_loader)
-                train_losses.append(train_loss)
+
                 print(f"Epoch: {epoch + 1} cost time: {time.time() - epoch_time} | Train Loss: {np.average(train_loss):.7f}")
                 print("计算vali_loss，test_loss...")
-                train_loss = np.average(train_loss)
                 # todo 调用exp 获取验证及测试结果
                 vali_loss = exp.vali(vali_data, vali_loader)
                 test_loss = exp.vali(test_data, test_loader)
-                print("Epoch: {0}, Steps: {1} | Train Loss: {2:.7f} Vali Loss: {3:.7f} Test Loss: {4:.7f}".format(
-                    epoch + 1, train_steps, train_loss, vali_loss, test_loss))
+
+                print(f"Epoch: {epoch + 1}, Steps: {train_steps} | Train Loss: {np.average(train_loss):.7f} Vali Loss: {vali_loss:.7f} Test Loss: {test_loss:.7f}")
                 early_stopping(vali_loss, exp.model, path)
                 if early_stopping.early_stop:
                     print("Early stopping")
@@ -83,8 +83,9 @@ if __name__ == '__main__':
         exp = Exp(args)  # set experiments
         print('>>>>>>>testing : {}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'.format(setting))
         exp.test(setting, test=1)
-        torch.cuda.empty_cache()
+        exp.getOnnxModel(setting)
+        netron.start(getBaseOutputPath(args=args,setting=setting)+'cross.onnx')
 
 
     end_time = datetime.now().astimezone(beijing)
-    print(f"训练开始时间：{start_time} , 结束时间:{end_time}")
+    print(f"开始时间：{start_time} , 结束时间:{end_time}")

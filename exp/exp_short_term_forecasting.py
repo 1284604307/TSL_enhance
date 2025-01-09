@@ -2,6 +2,7 @@ from data_provider.data_factory import data_provider
 from data_provider.m4 import M4Meta
 from exp.exp_basic import Exp_Basic
 from utils import drawUtil
+from utils.drawUtil import getBaseOutputPath
 from utils.dtw_metric import accelerated_dtw
 from utils.metrics import metric
 from utils.tools import EarlyStopping, adjust_learning_rate, visual
@@ -252,6 +253,26 @@ class Exp_Short_Term_Forecast(Exp_Basic):
 
         return
 
+    def getOnnxModel(self,setting):
+        test_data, test_loader = self._get_data(flag='test')
+        print('loading model')
+        self.model.load_state_dict(torch.load(os.path.join('./checkpoints/' + setting, 'checkpoint.pth')))
+        with torch.no_grad():
+            iter_count = 0
+            for i, (batch_x, batch_y, batch_x_mark, batch_y_mark) in enumerate(test_loader):
+                iter_count += 1
+                batch_x = batch_x.float().to(self.device)
+                batch_y = batch_y.float().to(self.device)
+                batch_y_mark = batch_y_mark.float().to(self.device)
+                # decoder input
+                dec_inp = torch.zeros_like(batch_y[:, -self.args.pred_len:, :]).float()
+                dec_inp = torch.cat([batch_y[:, :self.args.label_len, :], dec_inp], dim=1).float().to(self.device)
+
+                # outputs = self.model(batch_x, None, dec_inp, None)
+                device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+                input_data = batch_x
+                input_data = input_data.to(device)
+                torch.onnx.export(self.model,(input_data,None,dec_inp,None),f=getBaseOutputPath(args=self.args,setting=setting)+'cross.onnx')
 
     def trainOne(self, train_loader):
         model_optim = self.model_optim

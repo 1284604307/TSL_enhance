@@ -46,7 +46,7 @@ def saveTxt(path, txt):
         f.write(txt)
 
 
-def drawResultCompare(result, real, tag, savePath=None):
+def drawResultCompare(result, real, tag, savePath=None,args=None):
     try:
         # 设置中文字体及解决负号显示问题
         plt.rcParams['font.sans-serif'] = ['SimHei']
@@ -68,7 +68,7 @@ def drawResultCompare(result, real, tag, savePath=None):
                 plt.savefig(f'{savePath}.png')
                 print(f"结果对比图保存到{savePath}")
         elif len(real.shape) == 2:  # 判断数据是否为二维
-            n_dimensions = real.shape[1]  # 获取维度数量
+            n_dimensions = real.shape[1]  # 获取维度数量 n_dimensions = pred_len
             # todo 只保存第一个维度结果，避免出图太多
             # for dim in range(n_dimensions):
             for dim in range(1):
@@ -92,6 +92,30 @@ def drawResultCompare(result, real, tag, savePath=None):
         print("绘制结果图失败")
         print(e)
 
+def drawResultSample(input_data,pred, real, args):
+    count = 0
+    for i in range(1,input_data.shape[0],args.pred_len):
+        if count>5:
+            break
+        count+=1
+        input_data_sample = input_data[i,:,1]
+        pred_sample = pred[i,:]
+        real_sample = real[i,:]
+        pred_sample = np.concatenate((input_data_sample, pred_sample), axis=0)
+        real_sample = np.concatenate((input_data_sample, real_sample), axis=0)
+
+        plt.figure(figsize=(12, 8))
+        plt.plot(real_sample, label='真实值')
+        plt.plot(pred_sample, label='预测值')
+        plt.xticks(fontsize=15)
+        plt.yticks(fontsize=15)
+        plt.legend(loc='best', fontsize=15)
+        plt.ylabel('y', fontsize=15)
+        plt.xlabel('x', fontsize=15)
+        plt.title(f"seq=>pred Sample", fontsize=15)
+        plt.show()
+        plt.savefig(f'{getBaseOutputPath(args, args.setting)}_Sample案例{i}.png')
+        print(f'{getBaseOutputPath(args, args.setting)}_Sample案例{i}.png已保存')
 
 def saveResultCompare(predicted_values, real, basePath):
     # 将两个数组转换为DataFrame，分别作为两列

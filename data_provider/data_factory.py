@@ -32,6 +32,7 @@ def data_provider(args, flag):
     batch_size = args.batch_size
     freq = args.freq
 
+
     if args.task_name == 'anomaly_detection':
         drop_last = False
         data_set = Data(

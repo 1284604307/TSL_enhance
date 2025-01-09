@@ -813,21 +813,16 @@ class Dataset_Conv_ETTh1(Dataset):
                  target='OT', scale=True, timeenc=0, freq='h', seasonal_patterns=None):
         # size [seq_len, label_len, pred_len]
         self.args = args
-        # info
-        if size is None:
-            self.seq_len = 24 * 4 * 4
-            self.label_len = 24 * 4
-            self.pred_len = 24 * 4
-        else:
-            self.seq_len = size[0]
-            self.label_len = size[1]
-            self.pred_len = size[2]
+        self.seq_len = size[0]
+        self.label_len = size[1]
+        self.pred_len = size[2]
         # init
         assert flag in ['train', 'test', 'val']
         type_map = {'train': 0, 'val': 1, 'test': 2}
         self.set_type = type_map[flag]
 
         self.features = features
+        self.features_targets = []
         self.target = target
         self.scale = scale
         self.timeenc = timeenc
@@ -858,7 +853,17 @@ class Dataset_Conv_ETTh1(Dataset):
         border1 = border1s[self.set_type]
         border2 = border2s[self.set_type]
 
+        # 确保target始终为最后一列
+        # 获取目标列的列名，这里假设列名为'target'，你可根据实际情况修改
+
+        # todo 迁移到readFileFromPath方法中
+        #  将目标列弹出，此时df中就没有该列了，同时得到目标列数据
+        target_column = df_raw.pop(self.target)
+        # 再把目标列添加回DataFrame的第一列
+        df_raw.insert(0, self.target, target_column)
         cols_data = df_raw.columns
+        # df_raw[self.target] = target_column
+
         if self.features == 'M':
             df_data = df_raw.drop('date', axis=1, inplace=False)
         elif self.features == 'MS':
@@ -895,19 +900,25 @@ class Dataset_Conv_ETTh1(Dataset):
 
         # 和其他loader不同，该Loader对数据进行预分组
         features = []
+        features_targets = []
         targets = []
         for i in range(0,len(data_stamp)-self.seq_len-self.pred_len,1):
             x = self.data_x[i:i+self.seq_len]
             y = self.data_y[i+self.seq_len:i+self.seq_len+self.pred_len]
+
             features.append(x)
+            # 取target列作为打印数据
+            # features_targets.append(self.data_x[i:i+self.seq_len,train_data.columns.get_loc(self.args.target)])
             targets.append(y)
 
 
         self.data_stamp = data_stamp
         self.features = features
+        # self.features_targets = features_targets
         self.targets = targets
 
     def __getitem__(self, index):
+        # ,self.features_targets[index]
         return self.features[index],self.targets[index]
 
     def __len__(self):

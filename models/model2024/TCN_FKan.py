@@ -82,6 +82,14 @@ class TemporalConvNet_fftKAN(nn.Module):
         # self.e_kan = KAN(num_channels[-1], pred_len, gridsize=3)
         self.fft_kan = KAN(seq_len, pred_len, gridsize=3)
 
+        from models.model2024.FKAN import FractionalJacobiNeuralBlock
+        self.fft_kan = nn.Sequential(
+            nn.Linear(seq_len, 48),
+            FractionalJacobiNeuralBlock(5),
+            nn.Linear(48, 8),
+            FractionalJacobiNeuralBlock(4),
+            nn.Linear(8, pred_len),
+        )
 
     def forward(self, x):
         # 置换2，3，todo 为了按单时间步特征通道卷积训练

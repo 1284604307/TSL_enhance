@@ -41,7 +41,7 @@ class Exp_Long_Term_Forecast(Exp_Basic):
         criterion = nn.MSELoss()
         return criterion
 
-    def vali(self, vali_data, vali_loader, criterion):
+    def vali(self, vali_data, vali_loader):
         total_loss = []
         self.model.eval()
         with torch.no_grad():
@@ -68,7 +68,7 @@ class Exp_Long_Term_Forecast(Exp_Basic):
                 pred = outputs.detach().cpu()
                 true = batch_y.detach().cpu()
 
-                loss = criterion(pred, true)
+                loss = self.criterion(pred, true)
 
                 total_loss.append(loss)
         total_loss = np.average(total_loss)
