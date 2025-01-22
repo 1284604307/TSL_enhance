@@ -33,9 +33,9 @@ python -u run.py \
 --ignore_columns "$ignore_columns" \
 --result_rpath $result_rpath \
 --data_path $data_path \
---seq_len 96 \
+--seq_len 288 \
 --label_len 1 \
 --pred_len 96 \
 --num_workers 1 \
 --train_epochs 20 \
---num_channels 16,16,16
+--num_channels 32,16
