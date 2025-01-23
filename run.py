@@ -1,4 +1,5 @@
 import os
+import sys
 import time
 
 import netron
@@ -18,7 +19,36 @@ if __name__ == '__main__':
     torch.manual_seed(fix_seed)
     np.random.seed(fix_seed)
 
-    args = argsUtil.getArgsParser().parse_args()
+    if(sys.platform.startswith('win')):
+        print("Windows 环境")
+        file_path = 'scripts/myscripts/windows/TCN-fftKAN_比利时_96_16.参数配置'
+        try:
+            # 以只读模式打开文件
+            with open(file_path, 'r', encoding='utf-8') as file:
+                content = file.read()
+                contents = content.split("python -u run.py")
+                vars = contents[0].split("\n")
+                itemVars = {}
+                for item in vars:
+                    itemVar = item.split("=")
+                    # itemVars[itemVar[0]] = itemVar=[1]
+                    if(len(itemVar) == 2):
+                        contents[1] = contents[1].replace("%"+itemVar[0]+"%", itemVar[1])
+                    else:
+                        print("异常参数=>"+str(itemVar))
+                contents[1] = contents[1].strip('\n').split("\n")
+                args = []
+                for item in contents[1]:
+                    print(item)
+                    escapeIndex = item.index(" ")
+                    args.append(item[:escapeIndex].strip())
+                    args.append(item[escapeIndex+1:].strip().strip("\""))
+        except FileNotFoundError:
+            print(f"文件 {file_path} 未找到")
+            exit(0)
+        args = argsUtil.getArgsParser().parse_args(args)
+    else:
+        args = argsUtil.getArgsParser().parse_args()
     args = argsUtil.processAndPrintArgs(args)
     Exp = argsUtil.getExp(args)
 
