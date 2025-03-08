@@ -1,7 +1,7 @@
 export CUDA_VISIBLE_DEVICES=1
 
 task_name=long_term_forecast
-model_name=FEDformer
+model_name=iTransformer
 ignore_columns="Decremental bid Indicator,Region,Grid connection type,Resolution code,Offshore/onshore"
 target="OT"
 result_rpath=/kaggle/working
@@ -37,6 +37,6 @@ python -u run.py \
 --data_path $data_path \
 --seq_len 336 \
 --label_len 96 \
---pred_len 96 \
+--pred_len 12 \
 --num_workers 1 \
 --train_epochs 10
