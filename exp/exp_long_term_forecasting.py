@@ -248,6 +248,7 @@ class Exp_Long_Term_Forecast(Exp_Basic):
 
         preds = []
         trues = []
+        input_xs = []
         folder_path = './test_results/' + setting + '/'
         if not os.path.exists(folder_path):
             os.makedirs(folder_path)
@@ -255,6 +256,7 @@ class Exp_Long_Term_Forecast(Exp_Basic):
         self.model.eval()
         with torch.no_grad():
             for i, (batch_x, batch_y, batch_x_mark, batch_y_mark) in enumerate(test_loader):
+                input_xs.append(batch_x.cpu().numpy())
                 batch_x = batch_x.float().to(self.device)
                 batch_y = batch_y.float().to(self.device)
 
@@ -300,6 +302,7 @@ class Exp_Long_Term_Forecast(Exp_Basic):
 
         preds = np.concatenate(preds, axis=0)
         trues = np.concatenate(trues, axis=0)
+        input_xs = np.concatenate(input_xs, 0)
         print('test shape:', preds.shape, trues.shape)
         preds = preds.reshape(-1, preds.shape[-2], preds.shape[-1])
         trues = trues.reshape(-1, trues.shape[-2], trues.shape[-1])
@@ -325,17 +328,42 @@ class Exp_Long_Term_Forecast(Exp_Basic):
         else:
             dtw = 'not calculated'
 
-        mae, mse, rmse, mape, mspe = metric(preds, trues)
-        print('mse:{}, mae:{}, dtw:{}'.format(mse, mae, dtw))
-        f = open("result_long_term_forecast.txt", 'a')
-        f.write(setting + "  \n")
-        f.write('mse:{}, mae:{}, dtw:{}'.format(mse, mae, dtw))
-        f.write('\n')
-        f.write('\n')
-        f.close()
 
-        np.save(folder_path + 'metrics.npy', np.array([mae, mse, rmse, mape, mspe]))
-        np.save(folder_path + 'pred.npy', preds)
-        np.save(folder_path + 'true.npy', trues)
+
+
+        drawUtil.drawResultCompare(
+            result=preds,
+            real=trues,
+            tag=self.args.model,
+            savePath=folder_path + '归一化预测对比',
+            args=self.args
+        )
+        drawUtil.completeMSE(preds, trues)
+        # drawUtil.metricAndSave(preds, trues, folder_path)
+        drawUtil.saveResultCompare(preds, trues, drawUtil.getBaseOutputPath(self.args, setting))
+        drawUtil.drawResultSample(input_data  = input_xs,pred = preds,real=trues,args=self.args)
+        print("\n数据反归一化处理...")
+        # if(len(preds.shape)==2):
+        #     for i in range(preds.shape[1]):
+        preds = test_data.labelScaler.inverse_transform(np.array(preds))
+        trues = test_data.labelScaler.inverse_transform(np.array(trues))
+
+        drawUtil.drawResultCompare(result=preds, real=trues, tag=self.args.model,
+                                   savePath=folder_path + '反归一化后预测对比', )
+        drawUtil.metricAndSave(preds=preds, trues=trues, folder_path=drawUtil.getBaseOutputPath(self.args, setting))
+        drawUtil.saveResultCompare(preds, trues, drawUtil.getBaseOutputPath(self.args, setting))
+
+        # mae, mse, rmse, mape, mspe = metric(preds, trues)
+        # print('mse:{}, mae:{}, dtw:{}'.format(mse, mae, dtw))
+        # f = open("result_long_term_forecast.txt", 'a')
+        # f.write(setting + "  \n")
+        # f.write('mse:{}, mae:{}, dtw:{}'.format(mse, mae, dtw))
+        # f.write('\n')
+        # f.write('\n')
+        # f.close()
+        #
+        # np.save(folder_path + 'metrics.npy', np.array([mae, mse, rmse, mape, mspe]))
+        # np.save(folder_path + 'pred.npy', preds)
+        # np.save(folder_path + 'true.npy', trues)
 
         return
