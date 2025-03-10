@@ -127,22 +127,26 @@ def drawResultSample(input_data,pred, real, args):
         print(f'{getBaseOutputPath(args, args.setting)}_Sample案例{i}.png已保存')
 
 def saveResultCompare(predicted_values, real, basePath):
-    # 将两个数组转换为DataFrame，分别作为两列
-    np.save(f'{basePath}predicted.npy', predicted_values)
-    np.save(f'{basePath}real.npy', real)
-    print("npy 文件已保存")
-    columns_true = [f'真实值_时间步{i}' for i in range(real.shape[1])]
-    columns_pred = [f'预测值_时间步{i}' for i in range(predicted_values.shape[1])]
-    columns = columns_true + columns_pred
-    data = np.concatenate((real, predicted_values), axis=1)
-    df = pd.DataFrame(data, columns=columns)
-    # data = pd.DataFrame({
-    #     '真实值': real,
-    #     '预测值': predicted_values
-    # })
-    # 将DataFrame保存为csv文件
-    df.to_csv(f'{basePath}预测结果.csv', index=False, encoding='utf-8')
-    print("CSV 文件已保存")
+    try:
+        # 将两个数组转换为DataFrame，分别作为两列
+        np.save(f'{basePath}predicted.npy', predicted_values)
+        np.save(f'{basePath}real.npy', real)
+        print("npy 文件已保存")
+        columns_true = [f'真实值_时间步{i}' for i in range(real.shape[1])]
+        columns_pred = [f'预测值_时间步{i}' for i in range(predicted_values.shape[1])]
+        columns = columns_true + columns_pred
+        data = np.concatenate((real, predicted_values), axis=1)
+        df = pd.DataFrame(data, columns=columns)
+        # data = pd.DataFrame({
+        #     '真实值': real,
+        #     '预测值': predicted_values
+        # })
+        # 将DataFrame保存为csv文件
+        df.to_csv(f'{basePath}预测结果.csv', index=False, encoding='utf-8')
+        print("CSV 文件已保存")
+
+    except Exception as e:
+        print("saveResultCompare 保存数据失败 :",e)
 
 
 def RSE(pred, true):
