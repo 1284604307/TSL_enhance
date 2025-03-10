@@ -159,23 +159,33 @@ def completeMSE(real, predicted):
     # 将列表转换为NumPy数组
     # real = np.reshape(real, -1)
     # predicted = predicted.reshape(-1)
-    print("\033[1m" + "Complete 预测效果" + "\033[0m")
-    print(f'  {"标签形状:":<10}{str(real.shape):<20}  {"预测结果形状:":<10}{str(predicted.shape):<20}')
-    real = np.array(real)
-    prediction = np.array(predicted)
-    R2 = r2_score(real, prediction)
-    MAE = mean_absolute_error(real, prediction)
-    MSE = mean_squared_error(real, prediction)
-    RMSE = np.sqrt(MSE)
-    MAPE = np.mean(np.abs((real - prediction) / prediction))
-    MSPE = np.mean(np.square((prediction - real) / real))
-    # print(f'\n{model_name} 模型评价指标:')
-    resultStr = ""
-    resultStr += f'  {"R2:":<10}{R2:<20}  {"MSE:":<10}{MSE:<20}\n'
-    resultStr += f'  {"MAE:":<10}{MAE:<20}  {"RMSE:":<10}{RMSE:<20}\n'
-    resultStr += f'  {"MAPE:":<10}{MAPE:<20}  {"MSPE:":<10}{MSPE:<20}\n'
-    print(resultStr)
-    return resultStr
+    try:
+        if len(real.shape) == 3 and real.shape[2]==1:
+            real = real.reshape(real.shape[:-1])
+            print("real数组数据长度为3且第三维只有一个元素，缩减数据维度到2")
+        if len(predicted.shape) == 3 and predicted.shape[2]==1:
+            result = predicted.reshape(predicted.shape[:-1])
+            print("result数组数据长度为3且第三维只有一个元素，缩减数据维度到2")
+        print("\033[1m" + "Complete 预测效果" + "\033[0m")
+        print(f'  {"标签形状:":<10}{str(real.shape):<20}  {"预测结果形状:":<10}{str(predicted.shape):<20}')
+        real = np.array(real)
+        prediction = np.array(predicted)
+        R2 = r2_score(real, prediction)
+        MAE = mean_absolute_error(real, prediction)
+        MSE = mean_squared_error(real, prediction)
+        RMSE = np.sqrt(MSE)
+        MAPE = np.mean(np.abs((real - prediction) / prediction))
+        MSPE = np.mean(np.square((prediction - real) / real))
+        # print(f'\n{model_name} 模型评价指标:')
+        resultStr = ""
+        resultStr += f'  {"R2:":<10}{R2:<20}  {"MSE:":<10}{MSE:<20}\n'
+        resultStr += f'  {"MAE:":<10}{MAE:<20}  {"RMSE:":<10}{RMSE:<20}\n'
+        resultStr += f'  {"MAPE:":<10}{MAPE:<20}  {"MSPE:":<10}{MSPE:<20}\n'
+        print(resultStr)
+        return resultStr
+    except Exception as e:
+        print("绘制结果图失败")
+        print(e)
     # print(f'  {"R2:":<10}{R2:<20}  {"MSE:":<10}{MSE:<20}')
     # print(f'  {"MAE:":<10}{MAE:<20}  {"RMSE:":<10}{RMSE:<20}')
     # print(f'  {"MAPE:":<10}{MAPE:<20}  {"MSPE:":<10}{MSPE:<20}')
