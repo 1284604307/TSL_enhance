@@ -49,10 +49,10 @@ def saveTxt(path, txt):
 def drawResultCompare(result, real, tag, savePath=None,args=None):
     try:
         if len(real.shape) == 3 and real.shape[2]==1:
-            real = real.unsqueeze(2)
+            real = real.reshape(real.shape[:-1])
             print("real数组数据长度为3且第三维只有一个元素，缩减数据维度到2")
         if len(result.shape) == 3 and result.shape[2]==1:
-            result = result.unsqueeze(2)
+            result = result.reshape(result.shape[:-1])
             print("result数组数据长度为3且第三维只有一个元素，缩减数据维度到2")
 
         # 设置中文字体及解决负号显示问题
