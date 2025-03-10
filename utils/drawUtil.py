@@ -48,6 +48,13 @@ def saveTxt(path, txt):
 
 def drawResultCompare(result, real, tag, savePath=None,args=None):
     try:
+        if len(real.shape) == 3 and real.shape[2]==1:
+            real = real.unsqueeze(2)
+            print("real数组数据长度为3且第三维只有一个元素，缩减数据维度到2")
+        if len(result.shape) == 3 and result.shape[2]==1:
+            result = result.unsqueeze(2)
+            print("result数组数据长度为3且第三维只有一个元素，缩减数据维度到2")
+
         # 设置中文字体及解决负号显示问题
         plt.rcParams['font.sans-serif'] = ['SimHei']
         plt.rcParams['axes.unicode_minus'] = False
@@ -88,6 +95,8 @@ def drawResultCompare(result, real, tag, savePath=None,args=None):
                     print(f"结果对比图保存到{savePath}_{dim}.png")
         else:
             print("数据维度不符合预期，请检查数据格式。")
+            print(result)
+            print(real)
     except Exception as e:
         print("绘制结果图失败")
         print(e)

@@ -21,4 +21,4 @@ Thanks again for your valuable contributions.
 
 # 待更新功能
 
-1.former类实验输出R2等结果
+1.== former类实验输出R2等结果 ==
