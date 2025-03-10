@@ -164,8 +164,8 @@ def completeMSE(real, predicted):
             real = real.reshape(real.shape[:-1])
             print("real数组数据长度为3且第三维只有一个元素，缩减数据维度到2")
         if len(predicted.shape) == 3 and predicted.shape[2]==1:
-            result = predicted.reshape(predicted.shape[:-1])
-            print("result数组数据长度为3且第三维只有一个元素，缩减数据维度到2")
+            predicted = predicted.reshape(predicted.shape[:-1])
+            print("predicted数组数据长度为3且第三维只有一个元素，缩减数据维度到2")
         print("\033[1m" + "Complete 预测效果" + "\033[0m")
         print(f'  {"标签形状:":<10}{str(real.shape):<20}  {"预测结果形状:":<10}{str(predicted.shape):<20}')
         real = np.array(real)
