@@ -25,7 +25,7 @@ python -u run.py \
 --learning_rate 0.0001 \
 --date_column $date_column \
 --target "$target"  \
---ignore_columns $ignore_columns \
+--ignore_columns "$ignore_columns" \
 --result_rpath $result_rpath \
 --data_path $data_path  \
 --seq_len 128 \
