@@ -8,6 +8,7 @@ result_rpath=/kaggle/working
 root_path=/kaggle/input/all-data
 data_path=20221201_20241201_Federal_utc.csv
 date_column=Datetime
+
 python -u run.py \
 --task_name $task_name \
 --loss MSE \
@@ -16,7 +17,7 @@ python -u run.py \
 --root_path $root_path \
 --seasonal_patterns Monthly \
 --model $model_name \
---data conv_ETTh1 \
+--data base \
 --features MS \
 --e_layers 2 \
 --d_layers 1 \

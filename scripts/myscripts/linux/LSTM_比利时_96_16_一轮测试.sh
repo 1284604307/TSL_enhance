@@ -1,9 +1,9 @@
 export CUDA_VISIBLE_DEVICES=1
 
-task_name=conv
-model_name=TCN-fttKAN
-ignore_columns=""
-target="发电功率"
+task_name=base
+model_name=LSTM
+ignore_columns="Decremental bid Indicator,Region,Grid connection type,Resolution code,Offshore/onshore"
+target="Measured & Upscaled"
 result_rpath=/kaggle/working
 root_path=/kaggle/input/all-data
 data_path=20221201_20241201_Federal_utc.csv
@@ -36,5 +36,4 @@ python -u run.py \
 --label_len 1 \
 --pred_len 12 \
 --num_workers 1 \
---train_epochs 1 \
---num_channels 16
+--train_epochs 30
