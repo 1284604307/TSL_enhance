@@ -15,7 +15,7 @@ python -u run.py \
 --is_training 1 \
 --root_path $root_path \
 --model $model_name \
---data conv_ETTh1 \
+--data base \
 --features MS \
 --e_layers 2 \
 --d_layers 1 \
