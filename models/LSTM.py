@@ -21,7 +21,7 @@ class Model(nn.Module):
         # last_output = output[:self.pred_len, :, :]
         # last_output = last_output.permute(1, 2, 0)
         lstm_out, (hn, cn) = self.lstm(x)
-        out = self.fc(lstm_out[:,-1, :])  # 取最后一个时间步的输出
+        out = self.fc(lstm_out[:,:self.pred_len, :])  # 取pred_len时间步的输出
         # out = self.fc(lstm_out[-1,:, :])  # 取最后一个时间步的输出
         return out
 
