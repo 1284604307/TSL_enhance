@@ -8,25 +8,26 @@ result_rpath=./result
 root_path=./dataset/
 data_path=last晴天.xlsx
 date_column=date
+data=base
 
 python -u run.py \
---task_name %task_name% \
+--task_name $task_name \
 --loss MSE  \
 --scale 1  \
 --is_training 1  \
---root_path %root_path% \
---model %model_name%  \
---data base \
+--root_path $root_path \
+--model $model_name  \
+--data $data \
 --features MS \
 --enc_in 7 \
 --c_out 1 \
 --batch_size 64 \
 --learning_rate 0.0001 \
---date_column %date_column%  \
---target "%target%"  \
---ignore_columns %ignore_columns% \
---result_rpath %result_rpath%  \
---data_path %data_path%  \
+--date_column $date_column \
+--target "$target"  \
+--ignore_columns $ignore_columns \
+--result_rpath $result_rpath \
+--data_path $data_path  \
 --seq_len 128 \
 --label_len 128 \
 --pred_len 1 \
