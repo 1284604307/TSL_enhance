@@ -77,7 +77,7 @@ class Exp_Base(Exp_Basic):
             batch_x = batch_x.float().to(self.device)
             outputs = self.model(batch_x)
             # 移除值为1的维度
-            if(outputs.shape>2):
+            if(len(outputs.shape)>2):
                 outputs = torch.squeeze(outputs)
             batch_y = batch_y.float().to(self.device)
 
