@@ -22,14 +22,14 @@ python -u run.py \
 --enc_in 7 \
 --c_out 1 \
 --batch_size 64 \
---learning_rate 0.0001 \
+--learning_rate 0.01 \
 --date_column $date_column \
 --target "$target"  \
 --ignore_columns "$ignore_columns" \
 --result_rpath $result_rpath \
 --data_path $data_path  \
---seq_len 128 \
---label_len 128 \
+--seq_len 96 \
+--label_len 96 \
 --pred_len 1 \
 --num_workers 1  \
---train_epochs 300
+--train_epochs 30
