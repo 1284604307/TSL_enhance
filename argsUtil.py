@@ -128,7 +128,7 @@ def getArgsParser():
     parser.add_argument('--seed', type=int, default=2, help="Randomization seed")
     parser.add_argument('--jitter', default=False, action="store_true", help="Jitter preset augmentation")
     parser.add_argument('--scaling', default=False, action="store_true", help="Scaling preset augmentation")
-    parser.add_argument('--scale', type=bool, default=False, help="归一化")
+    parser.add_argument('--scale', type=int, default=1, help="是否归一化")
     parser.add_argument('--permutation', default=False, action="store_true",
                         help="Equal Length Permutation preset augmentation")
     parser.add_argument('--randompermutation', default=False, action="store_true",
@@ -172,7 +172,8 @@ def processAndPrintArgs(args):
 
     if args.model_id == None:
         args.model_id =f'[{ args.data_path.replace(" ", "-").split(".")[0]}]_{args.seq_len}_{args.pred_len}'
-
+    args.scale = args.scale!=0
+    print(f"是否进行归一化:{args.scale}")
     print(f"输入特征数量：{args.enc_in},输出特征数量:{args.c_out}，输出时间步:{args.pred_len}")
     print(f"训练集占比：{args.train_rate*100}%,验证集占比:{args.vail_rate*100}%，测试集占比:{(1-args.train_rate-args.vail_rate)*100}%")
     print(f"卷积层变：{args.num_channels}")

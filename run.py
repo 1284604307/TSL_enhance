@@ -107,10 +107,12 @@ if __name__ == '__main__':
 
 
             if args.save_model:
-                best_model_path = path + '/' + 'checkpoint.pth'
-                exp.model.load_state_dict(torch.load(best_model_path))
-                print("模型已保存")
-
+                try:
+                    best_model_path = path + '/' + 'checkpoint.pth'
+                    exp.model.load_state_dict(torch.load(best_model_path))
+                    print("模型已保存")
+                except FileNotFoundError:
+                    print("模型保存失败，未找到模型保存文件夹")
 
             # model = exp.train(setting)
             print('>>>>>>>testing : {}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'.format(setting))
