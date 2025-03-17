@@ -10,7 +10,7 @@ date_column=date
 python -u run.py
 --task_name %task_name%
 --loss MSE 
---scale 0
+--scale 1
 --is_training 1 
 --root_path %root_path%
 --model %model_name% 
@@ -25,8 +25,8 @@ python -u run.py
 --ignore_columns %ignore_columns%
 --result_rpath %result_rpath% 
 --data_path %data_path% 
---seq_len 64
---label_len 64
+--seq_len 16
+--label_len 16
 --pred_len 16
 --num_workers 1 
---train_epochs 1
+--train_epochs 20

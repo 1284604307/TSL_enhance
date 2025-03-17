@@ -112,10 +112,8 @@ class Exp_Base(Exp_Basic):
                 outputs = outputs.detach().cpu().numpy()
                 if len(batch_y.shape) < len(outputs.shape):
                     # 补充一层，使模型输出shape = y shape
-                    batch_y = batch_y.unsqueeze(1)
-                # # todo 多对多预测，调换预测的通道次序
-                # if(self.args.features.endswith("M")):
-                #     batch_y = batch_y.permute(0, 2, 1)
+                    outputs = outputs.squeeze()
+                    # batch_y = batch_y.unsqueeze()
                 pred = outputs
                 true = batch_y.cpu().numpy()
 
