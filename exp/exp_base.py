@@ -17,9 +17,9 @@ import numpy as np
 warnings.filterwarnings('ignore')
 
 
-class Exp_Conv(Exp_Basic):
+class Exp_Base(Exp_Basic):
     def __init__(self, args):
-        super(Exp_Conv, self).__init__(args)
+        super(Exp_Base, self).__init__(args)
         self.model_optim = self._select_optimizer()
         self.criterion = self._select_criterion()
 
@@ -76,7 +76,8 @@ class Exp_Conv(Exp_Basic):
 
             batch_x = batch_x.float().to(self.device)
             outputs = self.model(batch_x)
-
+            # 移除值为1的维度
+            outputs = torch.squeeze(outputs)
             batch_y = batch_y.float().to(self.device)
 
             loss = self.criterion(outputs, batch_y)
@@ -86,78 +87,6 @@ class Exp_Conv(Exp_Basic):
 
             self.model_optim.step()
         return train_losses
-
-    # def train(self, setting):
-    #     train_data, train_loader = self._get_data(flag='train')
-    #     vali_data, vali_loader = self._get_data(flag='val')
-    #     test_data, test_loader = self._get_data(flag='test')
-    #
-    #     path = os.path.join(self.args.checkpoints, setting)
-    #     if not os.path.exists(path):
-    #         os.makedirs(path)
-    #
-    #     time_now = time.time()
-    #
-    #     train_steps = len(train_loader)
-    #     early_stopping = EarlyStopping(patience=self.args.patience, verbose=True)
-    #
-    #     model_optim = self._select_optimizer()
-    #     criterion = self._select_criterion()
-    #
-    #     self.model.train()
-    #     for epoch in range(self.args.train_epochs):
-    #         iter_count = 0
-    #         train_loss = []
-    #
-    #         epoch_time = time.time()
-    #         for i, (batch_x, batch_y) in enumerate(train_loader):
-    #             iter_count += 1
-    #             model_optim.zero_grad()
-    #             # 置换2，3，todo 为了按单时间步特征通道卷积训练
-    #             # batch_x = batch_x.permute(0, 2, 1)
-    #
-    #             batch_x = batch_x.float().to(self.device)
-    #             outputs = self.model(batch_x)
-    #
-    #             batch_y = batch_y.float().to(self.device)
-    #
-    #
-    #             true_uninverse = train_data.scaler.inverse_transform(outputs)
-    #
-    #             loss = criterion(outputs, batch_y)
-    #             train_loss.append(loss.item())
-    #
-    #
-    #
-    #             if (i + 1) % 100 == 0:
-    #                 print("\titers: {0}, epoch: {1} | loss: {2:.7f}".format(i + 1, epoch + 1, loss.item()))
-    #                 speed = (time.time() - time_now) / iter_count
-    #                 left_time = speed * ((self.args.train_epochs - epoch) * train_steps - i)
-    #                 print('\tspeed: {:.4f}s/iter; left time: {:.4f}s'.format(speed, left_time / 1000))
-    #                 iter_count = 0
-    #                 time_now = time.time()
-    #
-    #             loss.backward()
-    #             model_optim.step()
-    #
-    #         print("Epoch: {} cost time: {}".format(epoch + 1, time.time() - epoch_time))
-    #         print("计算vali_loss，test_loss...")
-    #         train_loss = np.average(train_loss)
-    #         vali_loss = self.vali(vali_data, vali_loader)
-    #         test_loss = self.vali(test_data, test_loader)
-    #
-    #         print("Epoch: {0}, Steps: {1} | Train Loss: {2:.7f} Vali Loss: {3:.7f} Test Loss: {4:.7f}".format(
-    #             epoch + 1, train_steps, train_loss, vali_loss, test_loss))
-    #         early_stopping(vali_loss, self.model, path)
-    #         if early_stopping.early_stop:
-    #             print("Early stopping")
-    #             break
-    #         adjust_learning_rate(model_optim, epoch + 1, self.args)
-    #     if (self.args.save_model):
-    #         best_model_path = path + '/' + 'checkpoint.pth'
-    #         self.model.load_state_dict(torch.load(best_model_path))
-    #
-    #     return self.model
 
     def test(self, setting, test=0):
         test_data, test_loader = self._get_data(flag='test')

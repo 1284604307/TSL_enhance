@@ -34,7 +34,7 @@ python -u run.py \
 --result_rpath $result_rpath \
 --data_path $data_path \
 --seq_len 96 \
---label_len 1 \
+--label_len 96 \
 --pred_len 12 \
 --num_workers 1 \
 --train_epochs 20 \

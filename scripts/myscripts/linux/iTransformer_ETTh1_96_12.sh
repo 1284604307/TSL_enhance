@@ -1,6 +1,6 @@
 export CUDA_VISIBLE_DEVICES=1
 
-task_name=long_term_forecast
+task_name=short_term_forecast
 model_name=iTransformer
 ignore_columns="Decremental bid Indicator,Region,Grid connection type,Resolution code,Offshore/onshore"
 target="OT"
@@ -39,4 +39,4 @@ python -u run.py \
 --label_len 96 \
 --pred_len 12 \
 --num_workers 1 \
---train_epochs 10
+--train_epochs 20

@@ -7,6 +7,7 @@ from torch.utils.data import DataLoader
 data_dict = {
     'conv_OnlyTrainTest': Dataset_Conv_OTT,
     'conv_ETTh1': Dataset_Conv_ETTh1,
+    'base': Dataset_Conv_ETTh1,
     'ETTh1': Dataset_ETT_hour,
     'ETTh2': Dataset_ETT_hour,
     'ETTm1': Dataset_ETT_minute,

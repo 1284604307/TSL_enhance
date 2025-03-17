@@ -1,6 +1,6 @@
 export CUDA_VISIBLE_DEVICES=1
 
-task_name=long_term_forecast
+task_name=short_term_forecast
 model_name=FEDformer
 ignore_columns="Decremental bid Indicator,Region,Grid connection type,Resolution code,Offshore/onshore"
 target="OT"

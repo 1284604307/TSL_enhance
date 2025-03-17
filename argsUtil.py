@@ -1,6 +1,7 @@
 import argparse
 import torch
 
+from exp.exp_base import Exp_Base
 from exp.exp_conv import Exp_Conv
 from exp.exp_conv_only_train_test import Exp_Conv_OTT
 from exp.exp_long_term_forecasting import Exp_Long_Term_Forecast
@@ -100,11 +101,11 @@ def getArgsParser():
     parser.add_argument('--itr', type=int, default=1, help='experiments times')
     parser.add_argument('--train_epochs', type=int, default=10, help='train epochs')
     parser.add_argument('--batch_size', type=int, default=64, help='batch size of train input data')
-    parser.add_argument('--patience', type=int, default=3, help='early stopping patience')
+    parser.add_argument('--patience', type=int, default=0, help='早停耐心轮数，当为0时不早停')
     parser.add_argument('--learning_rate', type=float, default=0.001, help='optimizer learning rate')
     parser.add_argument('--des', type=str, default='test', help='exp description')
     parser.add_argument('--loss', type=str, default='MSE', help='loss function')
-    parser.add_argument('--lradj', type=str, default='type1', help='adjust learning rate')
+    parser.add_argument('--lradj', type=str, default='type0', help='自动调整学习率')
     parser.add_argument('--use_amp', action='store_true', help='use automatic mixed precision training', default=False)
 
     # GPU
@@ -156,6 +157,12 @@ def getArgsParser():
     # TCN
     parser.add_argument('--num_channels', type=str, default="32, 32, 64, 128, 32, 32, 64, 128", help="隐层输出dim数组")
     parser.add_argument('--kernel_size', type=int, default=2, help="卷积核尺寸")
+    return parser
+
+
+def getWinScriptParser():
+    parser = argparse.ArgumentParser(description='WinScript')
+    parser.add_argument('--script', type=str, default='...', help="windows脚本配置名")
     return parser
 
 
@@ -211,6 +218,8 @@ def getExp(args):
         Exp = Exp_Classification
     elif args.task_name == 'conv':
         Exp = Exp_Conv
+    elif args.task_name == 'base':
+        Exp = Exp_Base
     elif args.task_name == 'conv_ott':
         Exp = Exp_Conv_OTT
     else:

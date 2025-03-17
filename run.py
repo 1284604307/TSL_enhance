@@ -21,7 +21,10 @@ if __name__ == '__main__':
 
     if(sys.platform.startswith('win')):
         print("Windows 环境")
-        file_path = 'scripts/myscripts/windows/TCN-fftKAN_比利时_96_16.参数配置'
+
+        args_cmd = argsUtil.getWinScriptParser().parse_args()
+        # file_path = 'scripts/myscripts/windows/TCN-fftKAN_比利时_96_16.参数配置'
+        file_path = 'scripts/myscripts/windows/'+args_cmd.script
         try:
             # 以只读模式打开文件
             with open(file_path, 'r', encoding='utf-8') as file:
@@ -66,6 +69,7 @@ if __name__ == '__main__':
             drawUtil.saveTxt(drawUtil.getBaseOutputPath(args)+'results/' + setting + f'/参数配置_itr{ii}.txt', argsUtil.args2txt(args))
 
             print('>>>>>>>start training : {}>>>>>>>>>>>>>>>>>>>>>>>>>>'.format(setting))
+
             train_data, train_loader = exp._get_data(flag='train')
             vali_data, vali_loader = exp._get_data(flag='val')
             test_data, test_loader = exp._get_data(flag='test')
@@ -75,7 +79,9 @@ if __name__ == '__main__':
                 os.makedirs(path)
             train_steps = len(train_loader)
             time_now = time.time()
-            early_stopping = EarlyStopping(patience=args.patience, verbose=True)
+            completeEarlyStop = args.patience != 0
+            if(completeEarlyStop):
+                early_stopping = EarlyStopping(patience=args.patience, verbose=True)
 
             for epoch in range(args.train_epochs):
                 epoch_time = time.time()
@@ -83,16 +89,20 @@ if __name__ == '__main__':
                 train_loss = exp.trainOne(train_loader)
 
                 print(f"Epoch: {epoch + 1} cost time: {time.time() - epoch_time} | Train Loss: {np.average(train_loss):.7f}")
-                print("计算vali_loss，test_loss...")
-                # todo 调用exp 获取验证及测试结果
-                vali_loss = exp.vali(vali_data, vali_loader)
-                test_loss = exp.vali(test_data, test_loader)
 
-                print(f"Epoch: {epoch + 1}, Steps: {train_steps} | Train Loss: {np.average(train_loss):.7f} Vali Loss: {vali_loss:.7f} Test Loss: {test_loss:.7f}")
-                early_stopping(vali_loss, exp.model, path)
-                if early_stopping.early_stop:
-                    print("Early stopping")
-                    break
+                if(completeEarlyStop):
+                    print("计算vali_loss，test_loss以判断是否早停...")
+                    # todo 调用exp 获取验证及测试结果
+                    vali_loss = exp.vali(vali_data, vali_loader)
+                    test_loss = exp.vali(test_data, test_loader)
+
+                    print(f"Epoch: {epoch + 1}, Steps: {train_steps} | Train Loss: {np.average(train_loss):.7f} Vali Loss: {vali_loss:.7f} Test Loss: {test_loss:.7f}")
+                    early_stopping(vali_loss, exp.model, path)
+                    if early_stopping.early_stop:
+                        print("Early stopping")
+                        break
+
+
                 adjust_learning_rate(exp.model_optim, epoch + 1, args)
 
 
