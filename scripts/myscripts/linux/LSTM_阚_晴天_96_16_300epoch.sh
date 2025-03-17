@@ -30,6 +30,6 @@ python -u run.py \
 --data_path $data_path  \
 --seq_len 96 \
 --label_len 96 \
---pred_len 1 \
+--pred_len 16 \
 --num_workers 1  \
 --train_epochs 30
