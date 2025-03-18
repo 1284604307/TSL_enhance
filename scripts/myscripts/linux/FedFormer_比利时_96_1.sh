@@ -23,8 +23,8 @@ python -u run.py \
 --e_layers 2 \
 --d_layers 1 \
 --factor 3 \
---enc_in 7 \
---dec_in 7 \
+--enc_in 15 \
+--dec_in 15 \
 --c_out 1 \
 --batch_size 64 \
 --d_model 16 \
@@ -37,6 +37,6 @@ python -u run.py \
 --data_path $data_path \
 --seq_len 336 \
 --label_len 96 \
---pred_len 12 \
+--pred_len 1 \
 --num_workers 1 \
 --train_epochs 10
