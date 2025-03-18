@@ -88,7 +88,7 @@ if __name__ == '__main__':
                 # todo 调用exp 训练
                 train_loss = exp.trainOne(train_loader)
 
-                print(f"Epoch: {epoch + 1} cost time: {time.time() - epoch_time} | Train Loss: {np.average(train_loss):.7f}")
+                print(f"Epoch: {epoch + 1} cost time: {(time.time() - epoch_time):.2f} | Train Loss: {np.average(train_loss):.7f}")
 
                 if(completeEarlyStop):
                     print("计算vali_loss，test_loss以判断是否早停...")
@@ -99,7 +99,7 @@ if __name__ == '__main__':
                     print(f"Epoch: {epoch + 1}, Steps: {train_steps} | Train Loss: {np.average(train_loss):.7f} Vali Loss: {vali_loss:.7f} Test Loss: {test_loss:.7f}")
                     early_stopping(vali_loss, exp.model, path)
                     if early_stopping.early_stop:
-                        print("Early stopping")
+                        print("Early  stopping")
                         break
 
 

@@ -9,7 +9,7 @@ date_column=date
 
 python -u run.py
 --task_name %task_name%
---loss MSE 
+--loss MSE
 --scale 1
 --is_training 1 
 --root_path %root_path%
