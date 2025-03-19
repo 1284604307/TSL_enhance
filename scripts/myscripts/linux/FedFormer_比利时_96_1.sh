@@ -35,7 +35,7 @@ python -u run.py \
 --ignore_columns "$ignore_columns" \
 --result_rpath $result_rpath \
 --data_path $data_path \
---seq_len 336 \
+--seq_len 96 \
 --label_len 96 \
 --pred_len 1 \
 --num_workers 1 \
