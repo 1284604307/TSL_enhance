@@ -2,6 +2,7 @@ import argparse
 import torch
 
 from exp.exp_base import Exp_Base
+from exp.exp_bnn import Exp_BNN
 from exp.exp_conv import Exp_Conv
 from exp.exp_conv_only_train_test import Exp_Conv_OTT
 from exp.exp_long_term_forecasting import Exp_Long_Term_Forecast
@@ -226,6 +227,8 @@ def getExp(args):
         Exp = Exp_Conv
     elif args.task_name == 'base':
         Exp = Exp_Base
+    elif args.task_name == 'bnn':
+        Exp = Exp_BNN
     elif args.task_name == 'conv_ott':
         Exp = Exp_Conv_OTT
     else:
