@@ -1,12 +1,12 @@
 task_name=short_term_forecast
-model_name=iTransformer
+model_name=ns-Transformer
 ignore_columns="Decremental bid Indicator,Region,Grid connection type,Resolution code,Offshore/onshore"
 target="Measured & Upscaled"
 result_rpath=/kaggle/working
 root_path=./dataset/
 data_path=20221201_20241201_Federal_utc.csv
 date_column=Datetime
-data=former
+data=custom
 
 python -u run.py
 --task_name %task_name%

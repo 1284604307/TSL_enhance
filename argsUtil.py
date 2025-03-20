@@ -96,6 +96,11 @@ def getArgsParser():
     parser.add_argument('--seg_len', type=int, default=48,
                         help='the length of segmen-wise iteration of SegRNN')
 
+    #nsTransformer参数
+    parser.add_argument('--output_attention', type=bool, default=False,
+                        help='nsTransformer参数')
+
+
     # optimization
     parser.add_argument('--num_workers', type=int, default=1, help='data loader num workers')
     parser.add_argument('--itr', type=int, default=1, help='experiments times')
