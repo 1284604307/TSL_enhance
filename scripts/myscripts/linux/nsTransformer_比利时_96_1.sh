@@ -1,7 +1,7 @@
 export CUDA_VISIBLE_DEVICES=1
 
 task_name=short_term_forecast
-model_name=nsTransformer
+model_name=ns-Transformer
 ignore_columns="Decremental bid Indicator,Region,Grid connection type,Resolution code,Offshore/onshore"
 target="Measured & Upscaled"
 result_rpath=/kaggle/working
