@@ -39,4 +39,4 @@ python -u run.py \
 --label_len 48 \
 --pred_len 1 \
 --num_workers 1 \
---train_epochs 20
+--train_epochs 10

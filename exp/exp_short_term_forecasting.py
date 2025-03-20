@@ -306,7 +306,7 @@ class Exp_Short_Term_Forecast(Exp_Basic):
             train_loss.append(loss.item())
             if (i + 1) % 100 == 0:
                 print("\titers: {0} | loss: {1:.7f}".format(i + 1, np.average(train_loss)))
-                speed = (time.time() - time_now) / iter_count
+                speed = (time.time() - time_now) / 100
                 print('\tspeed: {:.4f}s/iter; '.format(speed))
                 time_now = time.time()
             loss.backward()
