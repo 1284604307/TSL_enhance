@@ -95,8 +95,8 @@ class Exp_BNN(Exp_Basic):
 
             # BNN 对分布平均计算损失
             # mean, log_std = outputs.split([batch_y.shape[1], batch_y.shape[1]], dim=-1)
-            mean, log_std = outputs.split([48,48], dim=-1)
-
+            outputs = outputs
+            mean, log_std = outputs.split([1,1], dim=-1)
             loss = (-self.gaussian_log_likelihood(batch_y, mean, log_std.exp())
                     + 1e-2 *  self.model.regularization()).mean()
 
@@ -161,7 +161,7 @@ class Exp_BNN(Exp_Basic):
         drawUtil.completeMSE(preds, trues)
         # drawUtil.metricAndSave(preds, trues, folder_path)
         drawUtil.saveResultCompare(preds, trues, drawUtil.getBaseOutputPath(self.args, setting))
-        drawUtil.drawResultSample(input_data  = input_xs,pred = preds,real=trues,args=self.args)
+        drawUtil.drawBNNResultSample(input_data  = input_xs,pred = preds,real=trues,args=self.args)
         print("\n数据反归一化处理...")
         # if(len(preds.shape)==2):
         #     for i in range(preds.shape[1]):

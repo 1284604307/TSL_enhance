@@ -298,11 +298,12 @@ class Model(nn.Module):
         self.pred_len = configs.pred_len
         # 输入维度为7，隐藏层维度为1，2层LSTM
         # batch_first = True 时 ，入参为`(batch_size, seq_len, input_size)`
-        self.bayesian_model = bayesian_model(in_features=configs.dec_in,out_features=configs.c_out,hidden_features=configs.num_channels,nonlin=torch.nn.ReLU,output_nonlin=None)
+        self.bayesian_model = bayesian_model(in_features=configs.dec_in,out_features=2*configs.c_out,
+                                             hidden_features=configs.num_channels,nonlin=torch.nn.ReLU,output_nonlin=None)
 
 
     def forward(self, x, resample=False):
-        return self.bayesian_model.forward(x, resample=resample)
+        return self.bayesian_model.forward(x, resample=resample)[:,-1]
 
     def regularization(self):
         return self.bayesian_model.regularization()

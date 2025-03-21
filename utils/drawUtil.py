@@ -101,6 +101,43 @@ def drawResultCompare(result, real, tag, savePath=None,args=None):
         print("绘制结果图失败")
         print(e)
 
+
+def drawBNNResultSample(input_data, pred, real, args):
+    count = 0
+    for i in range(1, input_data.shape[0], args.pred_len):
+        if count > 5:
+            break
+        count += 1
+        input_data_sample = input_data[i, :, 1]
+        real_sample = real[i, :]
+        real_sample_with_input = np.concatenate((input_data_sample, real_sample), axis=0)
+
+        plt.figure(figsize=(12, 8))
+        # 绘制真实值
+        plt.plot(real_sample_with_input, label='真实值', color='blue')
+
+        # 处理 pred 的维度
+        if pred.ndim == 2:  # 预测时间步为 1 的情况
+            pred_sample = pred[i, :]
+            x_pos = len(input_data_sample)
+            plt.scatter([x_pos] * len(pred_sample), pred_sample, color='red', alpha=0.2)
+        else:  # 预测时间步大于 1 的情况
+            pred_sample = pred[i, :, :]
+            for time_step in range(pred_sample.shape[1]):
+                x_pos = len(input_data_sample) + time_step
+                y_values = pred_sample[:, time_step]
+                plt.scatter([x_pos] * len(y_values), y_values, color='red', alpha=0.2)
+
+        plt.xticks(fontsize=15)
+        plt.yticks(fontsize=15)
+        plt.legend(loc='best', fontsize=15)
+        plt.ylabel('y', fontsize=15)
+        plt.xlabel('x', fontsize=15)
+        plt.title(f"seq=>pred Sample", fontsize=15)
+        plt.show()
+        plt.savefig(f'{getBaseOutputPath(args, args.setting)}_Sample案例{i}.png')
+        print(f'{getBaseOutputPath(args, args.setting)}_Sample案例{i}.png已保存')
+
 def drawResultSample(input_data,pred, real, args):
     count = 0
     for i in range(1,input_data.shape[0],args.pred_len):
@@ -197,11 +234,12 @@ def completeMSE(real, predicted):
 
 
 def metricAndSave(preds, trues, folder_path):
+    np.savetxt(folder_path + 'pred.csv', preds, delimiter=',')
+    np.savetxt(folder_path + 'trues.csv', trues, delimiter=',')
+    print("预测数据已保存:{}".format(folder_path + 'pred.csv,trues.csv'))
     mae, mse, rmse, mape, mspe = metric(preds, trues)
     resultStr = completeMSE(preds, trues)
     saveTxt(folder_path + 'metrics.txt', resultStr)
-    np.savetxt(folder_path + 'pred.csv', preds, delimiter=',')
-    np.savetxt(folder_path + 'trues.csv', trues, delimiter=',')
     print("结果已保存到:{}".format(folder_path + 'metrics.txt'))
     return mae, mse, rmse, mape, mspe
 
