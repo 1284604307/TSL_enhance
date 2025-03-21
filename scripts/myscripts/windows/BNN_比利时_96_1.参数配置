@@ -36,5 +36,5 @@ python -u run.py
 --label_len 1 
 --pred_len 1
 --num_workers 1 
---train_epochs 100
+--train_epochs 10
 --num_channels 2,2
