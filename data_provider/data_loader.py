@@ -25,7 +25,7 @@ def readFileFromPath(file_path,date_column=None,ignore_columns=None):
         return Exception("不支持的文件类型")
 
     # 测试代码只取前100行
-    df_raw = df_raw.head(1000)
+    # df_raw = df_raw.head(1000)
 
     '''
     df_raw.columns: ['date', ...(other features), target feature]
