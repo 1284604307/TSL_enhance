@@ -86,7 +86,7 @@ class Exp_BNN(Exp_Basic):
             self.model_optim.zero_grad()
 
             batch_x = batch_x.float().to(self.device)
-            # 还有一个参数
+            # 还有一个参数R
             outputs = self.model(batch_x, resample=True)
             # 移除值为1的维度
             if(len(outputs.shape)>2):
@@ -151,26 +151,33 @@ class Exp_BNN(Exp_Basic):
         # result save
         folder_path = drawUtil.getBaseOutputPath(self.args, setting)
 
-        drawUtil.drawResultCompare(
+        drawUtil.drawResultCompareWithMeanAndVariance(
             result=preds,
             real=trues,
             tag=self.args.model,
             savePath=folder_path + '归一化预测对比',
             args=self.args
         )
-        drawUtil.completeMSE(preds, trues)
         # drawUtil.metricAndSave(preds, trues, folder_path)
         drawUtil.saveResultCompare(preds, trues, drawUtil.getBaseOutputPath(self.args, setting))
         drawUtil.drawBNNResultSample(input_data  = input_xs,pred = preds,real=trues,args=self.args)
         print("\n数据反归一化处理...")
         # if(len(preds.shape)==2):
         #     for i in range(preds.shape[1]):
+        # 预测出来两个值【均值，方差】 分别反归一化
         preds = test_data.labelScaler.inverse_transform(np.array(preds))
         trues = test_data.labelScaler.inverse_transform(np.array(trues))
 
+        drawUtil.drawResultCompareWithMeanAndVariance(
+            result=preds,
+            real=trues,
+            tag=self.args.model,
+            savePath=folder_path + '反归一化后预测对比',
+            args=self.args
+        )
         drawUtil.drawResultCompare(result=preds, real=trues, tag=self.args.model,
                                    savePath=folder_path + '反归一化后预测对比', )
-        drawUtil.metricAndSave(preds=preds, trues=trues, folder_path=drawUtil.getBaseOutputPath(self.args, setting))
+        drawUtil.drawBNNResultSample(input_data  = input_xs,pred = preds,real=trues,args=self.args)
         drawUtil.saveResultCompare(preds, trues, drawUtil.getBaseOutputPath(self.args, setting))
 
         return

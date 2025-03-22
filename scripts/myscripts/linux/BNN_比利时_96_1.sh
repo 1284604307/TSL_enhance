@@ -36,6 +36,6 @@ python -u run.py \
 --seq_len 96 \
 --label_len 96 \
 --pred_len 1 \
---num_workers 1 \
---train_epochs 3 \
+--num_workers 5 \
+--train_epochs 30 \
 --num_channels 48,48

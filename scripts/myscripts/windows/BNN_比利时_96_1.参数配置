@@ -26,7 +26,7 @@ python -u run.py
 --batch_size 64 
 --d_model 16 
 --des Exp 
---learning_rate 0.01
+--learning_rate 0.001
 --date_column %date_column% 
 --target "%target%" 
 --ignore_columns %ignore_columns%
@@ -36,5 +36,5 @@ python -u run.py
 --label_len 1 
 --pred_len 1
 --num_workers 1 
---train_epochs 10
+--train_epochs 1
 --num_channels 48,48

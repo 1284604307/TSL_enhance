@@ -8,6 +8,7 @@ from sklearn.metrics import r2_score, mean_absolute_error, mean_squared_error
 
 from utils.metrics import metric
 import seaborn as sns
+from scipy.stats import norm
 
 
 def isKaggle():
@@ -44,6 +45,111 @@ def saveTxt(path, txt):
     # 使用 'w' 模式（代表写入文本模式，会覆盖原有内容）打开文件
     with open(path, 'w', encoding='utf-8') as f:
         f.write(txt)
+
+
+def drawResultCompareWithMeanAndVariance(result, real, tag, savePath=None, args=None):
+    pred = result
+    try:
+        # 设置中文字体及解决负号显示问题
+        plt.rcParams['font.sans-serif'] = ['SimHei']
+        plt.rcParams['axes.unicode_minus'] = False
+        pred = pred[:100]  # 取前100个值
+        real = real[:100]
+        num_samples = len(real)
+
+        # real数据维度 【标本数量，实际值】
+        # result数据维度 【标本数量，【均值方差】】
+        if (len(real.shape) == 2 and len(result.shape) == 2):
+            pred[:, 1] = np.abs(pred[:, 1])  # 确保方差为正
+
+            # 创建画布和子图
+            fig, (ax1) = plt.subplots(1, 1, figsize=(8, 8))
+
+            # 计算置信区间
+            lower_bound = pred[:, 0] - 2 * np.sqrt(pred[:, 1])
+            upper_bound = pred[:, 0] + 2 * np.sqrt(pred[:, 1])
+
+            # 第一个子图（上方）
+            ax1.plot(np.arange(num_samples), real, c='k', linewidth=1, alpha=0.5, label='真实值')
+            ax1.plot(np.arange(num_samples), pred[:, 0], c='r', linewidth=1, label='预测均值')
+            ax1.fill_between(np.arange(num_samples), lower_bound, upper_bound, color='skyblue', alpha=0.5,
+                             label='置信区间')
+            ax1.set_xlabel('标本索引')
+            ax1.set_ylabel('值')
+            ax1.set_title('真实值与预测值对比')
+            ax1.legend()
+
+            # 调整布局并显示图形
+            plt.tight_layout()
+            plt.show()
+
+            if savePath is not None:
+                plt.savefig(f'{savePath}.png')
+                print(f"结果对比图保存到{savePath}")
+        else:
+            print("数据维度不符合预期，请检查数据格式。")
+            print(result)
+            print(real)
+    except Exception as e:
+        print("绘制结果图失败")
+        print(e)
+
+
+def drawResultCompareWithMeanAndVariance1(result, real, tag, savePath=None,args=None):
+    pred = result
+    try:
+        # 设置中文字体及解决负号显示问题
+        plt.rcParams['font.sans-serif'] = ['SimHei']
+        plt.rcParams['axes.unicode_minus'] = False
+        # real数据维度 【标本数量，实际值】
+        # result数据维度 【标本数量，【均值方差】】
+        if(len(real.shape) == 2 and len(result.shape) == 2):
+            # pred[:, 1] = np.abs(pred[:, 1])  # 确保方差为正
+
+            pred = pred[:1000]  # 确保方差为正
+            real = real[:1000]  # 确保方差为正
+
+            num_samples = len(real)
+            # 设定绘图范围
+            lower_bound = pred[:, 0] - 2 * np.sqrt(pred[:, 1])
+            upper_bound = pred[:, 0] + 2 * np.sqrt(pred[:, 1])
+            # x_lim_min = np.min(real) - 1
+            # x_lim_max = np.max(real) + 1
+            # 创建x轴的值
+            x = np.arange(num_samples)
+            # 绘制图形
+            plt.figure(figsize=(10, 6))
+
+            # 绘制真实值
+            plt.scatter(x, real, label='Real Values', color='red')
+
+            # 绘制预测值的范围
+            for i in range(num_samples):
+                plt.plot([i, i], [lower_bound[i], upper_bound[i]], color='blue', alpha=0.1)
+                plt.plot(i, pred[i, 0], marker='o', color='blue', label='Predicted Mean' if i == 0 else "", alpha=0.01, markersize=2)
+
+            # 添加标签和标题
+            # 设置x轴刻度为样本数量
+            # plt.xticks(x)
+            plt.xticks(fontsize=15)
+            plt.yticks(fontsize=15)
+            plt.legend(loc='best', fontsize=15)
+            plt.xlabel('采样点(Index)', fontsize=15)
+            plt.ylabel('负荷值(Value)', fontsize=15)
+            plt.title(f"{tag}")
+            plt.legend()
+            plt.show()
+
+            if savePath is not None:
+                plt.savefig(f'{savePath}.png')
+                print(f"结果对比图保存到{savePath}")
+        else:
+            print("数据维度不符合预期，请检查数据格式。")
+            print(result)
+            print(real)
+    except Exception as e:
+        print("绘制结果图失败")
+        print(e)
 
 
 def drawResultCompare(result, real, tag, savePath=None,args=None):
@@ -162,6 +268,8 @@ def drawResultSample(input_data,pred, real, args):
         plt.show()
         plt.savefig(f'{getBaseOutputPath(args, args.setting)}_Sample案例{i}.png')
         print(f'{getBaseOutputPath(args, args.setting)}_Sample案例{i}.png已保存')
+
+
 
 def saveResultCompare(predicted_values, real, basePath):
     try:

@@ -278,6 +278,7 @@ def bayesian_model(in_features,
     if output_nonlin is not None:
         modules["nonlin_out"] = output_nonlin()
 
+
     def init(module):
         if callable(weight_initializer) and hasattr(module, "weight"):
             weight_initializer(module.weight)
