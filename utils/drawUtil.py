@@ -5,7 +5,8 @@ import numpy as np
 import torch
 from matplotlib import pyplot as plt
 import pandas as pd
-from sklearn.metrics import r2_score, mean_absolute_error, mean_squared_error
+from sklearn.metrics import r2_score, mean_absolute_error, mean_squared_error, mean_absolute_percentage_error
+from sktime.performance_metrics.forecasting import mean_squared_percentage_error
 
 from utils.metrics import metric
 import seaborn as sns
@@ -345,8 +346,10 @@ def completeMSE(real, predicted):
         MAE = mean_absolute_error(real, prediction)
         MSE = mean_squared_error(real, prediction)
         RMSE = np.sqrt(MSE)
-        MAPE = np.mean(np.abs((real - prediction) / prediction))
-        MSPE = np.mean(np.square((prediction - real) / real))
+        MAPE = mean_absolute_percentage_error(real,prediction)
+        # MAPE = np.mean(np.abs((real - prediction) / real)) * 100
+        # MSPE = np.mean(np.square((prediction - real) / real))
+        MSPE =mean_squared_percentage_error(real,prediction)
         # print(f'\n{model_name} 模型评价指标:')
         resultStr = ""
         resultStr += f'  {"R2:":<10}{R2:<20}  {"MSE:":<10}{MSE:<20}\n'
