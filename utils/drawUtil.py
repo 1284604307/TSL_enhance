@@ -17,10 +17,12 @@ from matplotlib import font_manager
 
 def loadFont():
     # 设置字体路径（Kaggle 上传真实目录，根据需要自己改）
-    font_path = "dataset/simhei.ttf"
-    my_font = font_manager.FontProperties(fname=font_path)
+    font_path = "../dataset/simhei.ttf"
+    font_prop = font_manager.FontProperties(fname=font_path)
+    # Find the font path and add it to the font manager
+    font_manager.fontManager.addfont(font_path)
     # 应用字体
-    plt.rcParams['font.sans-serif'] = my_font.get_name()
+    plt.rcParams['font.sans-serif'] = font_prop.get_name()
     plt.rcParams['axes.unicode_minus'] = False
 
 
