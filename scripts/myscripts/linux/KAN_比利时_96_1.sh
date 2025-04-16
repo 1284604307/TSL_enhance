@@ -1,7 +1,7 @@
 export CUDA_VISIBLE_DEVICES=1
 
-task_name=bnn
-model_name=BNN
+task_name=conv
+model_name=KAN
 ignore_columns="Decremental bid Indicator,Region,Grid connection type,Resolution code,Offshore/onshore"
 target="Measured & Upscaled"
 result_rpath=/kaggle/working
@@ -34,8 +34,8 @@ python -u run.py \
 --result_rpath $result_rpath \
 --data_path $data_path \
 --seq_len 96 \
---label_len 96 \
+--label_len 1 \
 --pred_len 1 \
---num_workers 5 \
---train_epochs 2 \
---num_channels 48,48
+--num_workers 1 \
+--train_epochs 10 \
+--num_channels 16,16

@@ -9,16 +9,18 @@ real = []  # 存储真实值的一维数组
 prediction = []  # 存储预测值的一维数组
 
 path = '../results/'
-settings = 'conv_ETTh1_96_96_TCN_conv_ETTh1_ftMS_sl96_ll48_pl1_dm16_nh8_el2_dl1_df32_expand2_dc4_fc3_ebtimeF_dtTrue_Exp_0'
+settings = 'BNN/bnn_[20221201_20241201_Federal_utc]_96_1_BNN_conv_ETTh1_ftMS_sl96_ll1_pl1_dm16_nh8_el2_dl1_df2048_expand2_dc4_fc6_ebtimeF_dtTrue_Exp_0'
 
 pred_path = path + settings +'/pred.csv'
 true_path = path + settings +'/trues.csv'
 
 preds = pd.read_csv(pred_path)
+# 取第一个
+preds = preds.values[:,0]
 trues = pd.read_csv(true_path)
 
 real = trues.values.reshape(-1)
-prediction = preds.values.reshape(-1)
+prediction = preds.reshape(-1)
 # 打印读取的结果
 # print("True values:", real)
 # print("Predicted values:", prediction)
@@ -39,3 +41,4 @@ MAPE = np.mean(np.abs((real - prediction) / prediction))
 print(f'MAPE: {MAPE:.4f}')
 
 drawUtil.drawResultCompare(result=prediction,real=real,tag="prediction",savePath=None)
+drawUtil.completeMSE(prediction,real)

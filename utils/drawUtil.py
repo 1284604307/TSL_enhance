@@ -2,6 +2,7 @@
 import os
 
 import numpy as np
+import torch
 from matplotlib import pyplot as plt
 import pandas as pd
 from sklearn.metrics import r2_score, mean_absolute_error, mean_squared_error
@@ -370,3 +371,18 @@ def drawBBox(rawData, figPath="箱型图.png"):
     plt.tight_layout()
     plt.savefig(getBaseOutputPath() + figPath, dpi=600, bbox_inches='tight')
     plt.show()
+
+
+def syncDataDimension(y, outputs):
+    """
+    同步 outputs 和 y 的维度。
+    :param y: 标签数据，通常形状为 (batch_size, pred_len, pred_dim)
+    :param outputs: 模型预测结果，可能形状为 (batch_size, pred_len) 或与 y 相同
+    :return: 调整维度后的 outputs，形状与 y 一致
+    """
+    if len(outputs.shape) == 3 and len(y.shape) == 2:
+        batch_size, pred_len, pred_dim = outputs.shape
+        # 扩展 outputs 的维度
+        y = np.expand_dims(y, axis=-1)
+        return torch.from_numpy(y)
+    return y

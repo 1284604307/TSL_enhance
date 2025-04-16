@@ -76,7 +76,7 @@ class Exp_Conv(Exp_Basic):
 
             batch_x = batch_x.float().to(self.device)
             outputs = self.model(batch_x)
-
+            batch_y = drawUtil.syncDataDimension(batch_y,outputs)
             batch_y = batch_y.float().to(self.device)
 
             loss = self.criterion(outputs, batch_y)

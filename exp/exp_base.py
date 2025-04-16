@@ -79,6 +79,7 @@ class Exp_Base(Exp_Basic):
             # 移除值为1的维度
             if(len(outputs.shape)>2):
                 outputs = torch.squeeze(outputs)
+                batch_y = torch.squeeze(batch_y)
             batch_y = batch_y.float().to(self.device)
 
             loss = self.criterion(outputs, batch_y)
