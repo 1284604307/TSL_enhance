@@ -11,6 +11,18 @@ from utils.metrics import metric
 import seaborn as sns
 from scipy.stats import norm
 
+# 加载字体
+from matplotlib import font_manager
+
+
+def loadFont():
+    # 设置字体路径（Kaggle 上传真实目录，根据需要自己改）
+    font_path = "../dataset/simhei.ttf"
+    my_font = font_manager.FontProperties(fname=font_path)
+    # 应用字体
+    plt.rcParams['font.sans-serif'] = my_font.get_name()
+    plt.rcParams['axes.unicode_minus'] = False
+
 
 def isKaggle():
     import os
@@ -50,10 +62,8 @@ def saveTxt(path, txt):
 
 def drawResultCompareWithMeanAndVariance(result, real, tag, savePath=None, args=None):
     pred = result
+    loadFont()
     try:
-        # 设置中文字体及解决负号显示问题
-        plt.rcParams['font.sans-serif'] = ['SimHei']
-        plt.rcParams['axes.unicode_minus'] = False
         pred = pred[:100]  # 取前100个值
         real = real[:100]
         num_samples = len(real)
@@ -97,11 +107,9 @@ def drawResultCompareWithMeanAndVariance(result, real, tag, savePath=None, args=
 
 
 def drawResultCompareWithMeanAndVariance1(result, real, tag, savePath=None,args=None):
+    loadFont()
     pred = result
     try:
-        # 设置中文字体及解决负号显示问题
-        plt.rcParams['font.sans-serif'] = ['SimHei']
-        plt.rcParams['axes.unicode_minus'] = False
         # real数据维度 【标本数量，实际值】
         # result数据维度 【标本数量，【均值方差】】
         if(len(real.shape) == 2 and len(result.shape) == 2):
@@ -154,6 +162,7 @@ def drawResultCompareWithMeanAndVariance1(result, real, tag, savePath=None,args=
 
 
 def drawResultCompare(result, real, tag, savePath=None,args=None):
+    loadFont()
     try:
         if len(real.shape) == 3 and real.shape[2]==1:
             real = real.reshape(real.shape[:-1])
@@ -162,9 +171,6 @@ def drawResultCompare(result, real, tag, savePath=None,args=None):
             result = result.reshape(result.shape[:-1])
             print("result数组数据长度为3且第三维只有一个元素，缩减数据维度到2")
 
-        # 设置中文字体及解决负号显示问题
-        plt.rcParams['font.sans-serif'] = ['SimHei']
-        plt.rcParams['axes.unicode_minus'] = False
 
         if len(real.shape) == 1:  # 判断数据是否为一维
             # 绘制真实值和预测值对比图（一维情况）
@@ -210,6 +216,7 @@ def drawResultCompare(result, real, tag, savePath=None,args=None):
 
 
 def drawBNNResultSample(input_data, pred, real, args):
+    loadFont()
     count = 0
     for i in range(1, input_data.shape[0], args.pred_len):
         if count > 5:
@@ -246,6 +253,7 @@ def drawBNNResultSample(input_data, pred, real, args):
         print(f'{getBaseOutputPath(args, args.setting)}_Sample案例{i}.png已保存')
 
 def drawResultSample(input_data,pred, real, args):
+    loadFont()
     count = 0
     for i in range(1,input_data.shape[0],args.pred_len):
         if count>5:
@@ -273,6 +281,7 @@ def drawResultSample(input_data,pred, real, args):
 
 
 def saveResultCompare(predicted_values, real, basePath):
+    loadFont()
     try:
         # 将两个数组转换为DataFrame，分别作为两列
         np.save(f'{basePath}predicted.npy', predicted_values)
@@ -306,6 +315,7 @@ def CORR(pred, true):
 
 
 def completeMSE(real, predicted):
+    loadFont()
     # 将列表转换为NumPy数组
     # real = np.reshape(real, -1)
     # predicted = predicted.reshape(-1)
@@ -343,6 +353,7 @@ def completeMSE(real, predicted):
 
 
 def metricAndSave(preds, trues, folder_path):
+    loadFont()
     np.savetxt(folder_path + 'pred.csv', preds, delimiter=',')
     np.savetxt(folder_path + 'trues.csv', trues, delimiter=',')
     print("预测数据已保存:{}".format(folder_path + 'pred.csv,trues.csv'))
@@ -354,9 +365,7 @@ def metricAndSave(preds, trues, folder_path):
 
 
 def drawBBox(rawData, figPath="箱型图.png"):
-    # 绘制箱型图
-    rc = {'font.sans-serif': 'SimHei',
-          'axes.unicode_minus': False}
+    loadFont()
     # 设置Seaborn的风格
     sns.set_style("whitegrid", rc=rc)
 
