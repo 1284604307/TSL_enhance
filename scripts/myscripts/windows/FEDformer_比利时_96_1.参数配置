@@ -1,0 +1,40 @@
+task_name=short_term_forecast
+model_name=FEDformer
+ignore_columns="Decremental bid Indicator,Region,Grid connection type,Resolution code,Offshore/onshore"
+target="Measured & Upscaled"
+result_rpath=/kaggle/working
+root_path=./dataset/
+data_path=20221201_20241201_Federal_utc.csv
+date_column=Datetime
+data=former
+
+python -u run.py
+--task_name short_term_forecast 
+--loss MSE 
+--scale 1 
+--is_training 1 
+--root_path D:\深度学习\代码\A数据集\电力数据集 
+--seasonal_patterns Monthly 
+--model FEDformer 
+--data former 
+--features MS 
+--e_layers 2 
+--d_layers 1 
+--factor 6 
+--enc_in 15 
+--dec_in 15 
+--c_out 1 
+--batch_size 64 
+--d_model 16 
+--des Exp 
+--learning_rate 0.001 
+--date_column Datetime 
+--target "Measured & Upscaled" 
+--ignore_columns "Decremental bid Indicator,Region,Grid connection type,Resolution code,Offshore/onshore" 
+--data_path 比利时20221201_20241201_Federal_utc区域.csv 
+--seq_len 96 
+--label_len 96 
+--pred_len 1 
+--result_rpath /kaggle/working 
+--num_workers 1 
+--train_epochs 10
